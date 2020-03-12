@@ -3,6 +3,7 @@ import cv2
 import numpy as np
 import tensorflow as tf
 
+
 class HandTracker():
     r"""
     Class to use Google's Mediapipe HandTracking pipeline from Python.
@@ -22,7 +23,7 @@ class HandTracker():
     """
 
     def __init__(self, palm_model, joint_model, anchors_path,
-                box_enlarge=1.5, box_shift=0.2):
+                 box_enlarge=1.5, box_shift=0.2):
         self.box_shift = box_shift
         self.box_enlarge = box_enlarge
 
@@ -48,21 +49,21 @@ class HandTracker():
         self.out_idx_joint = self.interp_joint.get_output_details()[0]['index']
 
         # 90° rotation matrix used to create the alignment trianlge
-        self.R90 = np.r_[[[0,1],[-1,0]]]
+        self.R90 = np.r_[[[0, 1], [-1, 0]]]
 
         # trianlge target coordinates used to move the detected hand
         # into the right position
         self._target_triangle = np.float32([
-                        [128, 128],
-                        [128,   0],
-                        [  0, 128]
-                    ])
+            [128, 128],
+            [128, 0],
+            [0, 128]
+        ])
         self._target_box = np.float32([
-                        [  0,   0, 1],
-                        [256,   0, 1],
-                        [256, 256, 1],
-                        [  0, 256, 1],
-                    ])
+            [0, 0, 1],
+            [256, 0, 1],
+            [256, 256, 1],
+            [0, 256, 1],
+        ])
 
     def _get_triangle(self, kp0, kp2, dist=1):
         """get a triangle used to calculate Affine transformation matrix"""
@@ -71,7 +72,7 @@ class HandTracker():
         dir_v /= np.linalg.norm(dir_v)
 
         dir_v_r = dir_v @ self.R90.T
-        return np.float32([kp2, kp2+dir_v*dist, kp2 + dir_v_r*dist])
+        return np.float32([kp2, kp2 + dir_v * dist, kp2 + dir_v_r * dist])
 
     @staticmethod
     def _triangle_to_bbox(source):
@@ -81,44 +82,43 @@ class HandTracker():
             [source[1] + source[0] - source[2]],
             [3 * source[0] - source[1] - source[2]],
             [source[2] - source[1] + source[0]],
-        ].reshape(-1,2)
+        ].reshape(-1, 2)
         return bbox
 
     @staticmethod
     def _im_normalize(img):
-         return np.ascontiguousarray(
-             2 * ((img / 255) - 0.5
-        ).astype('float32'))
+        return np.ascontiguousarray(
+            2 * ((img / 255) - 0.5
+                 ).astype('float32'))
 
     @staticmethod
     def _sigm(x):
-        return 1 / (1 + np.exp(-x) )
+        return 1 / (1 + np.exp(-x))
 
     @staticmethod
     def _pad1(x):
-        return np.pad(x, ((0,0),(0,1)), constant_values=1, mode='constant')
-
+        return np.pad(x, ((0, 0), (0, 1)), constant_values=1, mode='constant')
 
     def predict_joints(self, img_norm):
         self.interp_joint.set_tensor(
-            self.in_idx_joint, img_norm.reshape(1,256,256,3))
+            self.in_idx_joint, img_norm.reshape(1, 256, 256, 3))
         self.interp_joint.invoke()
 
         joints = self.interp_joint.get_tensor(self.out_idx_joint)
-        return joints.reshape(-1,2)
+        return joints.reshape(-1, 2)
 
     def detect_hand(self, img_norm):
-        assert -1 <= img_norm.min() and img_norm.max() <= 1,\
-        "img_norm should be in range [-1, 1]"
-        assert img_norm.shape == (256, 256, 3),\
-        "img_norm shape must be (256, 256, 3)"
+        assert -1 <= img_norm.min() and img_norm.max() <= 1, \
+            "img_norm should be in range [-1, 1]"
+        assert img_norm.shape == (256, 256, 3), \
+            "img_norm shape must be (256, 256, 3)"
 
         # predict hand location and 7 initial landmarks
         self.interp_palm.set_tensor(self.in_idx, img_norm[None])
         self.interp_palm.invoke()
 
         out_reg = self.interp_palm.get_tensor(self.out_reg_idx)[0]
-        out_clf = self.interp_palm.get_tensor(self.out_clf_idx)[0,:,0]
+        out_clf = self.interp_palm.get_tensor(self.out_clf_idx)[0, :, 0]
 
         # finding the best prediction
         # TODO: replace it with non-max suppression
@@ -133,12 +133,12 @@ class HandTracker():
         max_idx = np.argmax(candidate_detect[:, 3])
 
         # bounding box offsets, width and height
-        dx,dy,w,h = candidate_detect[max_idx, :4]
-        center_wo_offst = candidate_anchors[max_idx,:2] * 256
+        dx, dy, w, h = candidate_detect[max_idx, :4]
+        center_wo_offst = candidate_anchors[max_idx, :2] * 256
 
         # 7 initial keypoints
-        keypoints = center_wo_offst + candidate_detect[max_idx,4:].reshape(-1,2)
-        side = max(w,h) * self.box_enlarge
+        keypoints = center_wo_offst + candidate_detect[max_idx, 4:].reshape(-1, 2)
+        side = max(w, h) * self.box_enlarge
 
         # now we need to move and rotate the detected hand for it to occupy a
         # 256x256 square
@@ -155,14 +155,13 @@ class HandTracker():
         pad = (shape.max() - shape[:2]).astype('uint32') // 2
         img_pad = np.pad(
             img,
-            ((pad[0],pad[0]), (pad[1],pad[1]), (0,0)),
+            ((pad[0], pad[0]), (pad[1], pad[1]), (0, 0)),
             mode='constant')
         img_small = cv2.resize(img_pad, (256, 256))
         img_small = np.ascontiguousarray(img_small)
 
         img_norm = self._im_normalize(img_small)
         return img_pad, img_norm, pad
-
 
     def __call__(self, img):
         img_pad, img_norm, pad = self.preprocess_img(img)
@@ -180,20 +179,20 @@ class HandTracker():
         )
 
         img_landmark = cv2.warpAffine(
-            self._im_normalize(img_pad), Mtr, (256,256)
+            self._im_normalize(img_pad), Mtr, (256, 256)
         )
 
         joints = self.predict_joints(img_landmark)
 
         # adding the [0,0,1] row to make the matrix square
         Mtr = self._pad1(Mtr.T).T
-        Mtr[2,:2] = 0
+        Mtr[2, :2] = 0
 
         Minv = np.linalg.inv(Mtr)
 
         # projecting keypoints back into original image coordinate space
-        kp_orig = (self._pad1(joints) @ Minv.T)[:,:2]
-        box_orig = (self._target_box @ Minv.T)[:,:2]
+        kp_orig = (self._pad1(joints) @ Minv.T)[:, :2]
+        box_orig = (self._target_box @ Minv.T)[:, :2]
         kp_orig -= pad[::-1]
         box_orig -= pad[::-1]
 
