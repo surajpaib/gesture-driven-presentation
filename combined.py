@@ -1,7 +1,6 @@
 import numpy as np
 import tensorflow as tf
 import cv2
-from img_utils import *
 import posenet
 import time
 from hand_tracker import HandTracker
@@ -51,14 +50,16 @@ cap.set(3, 640)
 cap.set(4, 480)
 
 output_stride = 32
-scale = 0.5354
+scale = 0.4015625
 
 start = time.time()
 frame_count = 0
 while cap.isOpened():
     _, img = cap.read()
-    img = img[:, 80:560]
+    padded_img = np.zeros((640, 640, 3),dtype=np.uint8)
 
+    padded_img[80:560, :, :] = img
+    img = padded_img
     input_image, display_image, output_scale = posenet.process_input(
                 img, scale_factor=scale, output_stride=output_stride)
 
@@ -82,7 +83,8 @@ while cap.isOpened():
                 min_pose_score=0.1)
     
     keypoint_coords *= output_scale
-    
+    keypoint_coords = keypoint_coords[:, 5:11, :]
+    keypoint_scores = keypoint_scores[:, 5:11]
     # Hand Detector
     points, _ = detector(display_image)
 

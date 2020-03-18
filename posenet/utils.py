@@ -1,8 +1,23 @@
 import cv2
 import numpy as np
 
-import posenet.constants
 
+PART_NAMES = [
+    "leftShoulder",
+    "rightShoulder", "leftElbow", "rightElbow", "leftWrist", "rightWrist"
+    ]
+
+NUM_KEYPOINTS = len(PART_NAMES)
+
+PART_IDS = {pn: pid for pid, pn in enumerate(PART_NAMES)}
+
+CONNECTED_PART_NAMES = [
+   ("leftElbow", "leftShoulder"),
+    ("leftElbow", "leftWrist"), 
+    ("rightElbow", "rightShoulder"), ("rightElbow", "rightWrist"),
+]
+
+CONNECTED_PART_INDICES = [(PART_IDS[a], PART_IDS[b]) for a, b in CONNECTED_PART_NAMES]
 
 def valid_resolution(width, height, output_stride=16):
     target_width = (int(width) // output_stride) * output_stride + 1
@@ -51,7 +66,7 @@ def draw_keypoints(
 
 def get_adjacent_keypoints(keypoint_scores, keypoint_coords, min_confidence=0.1):
     results = []
-    for left, right in posenet.CONNECTED_PART_INDICES:
+    for left, right in CONNECTED_PART_INDICES:
         if keypoint_scores[left] < min_confidence or keypoint_scores[right] < min_confidence:
             continue
         results.append(
@@ -82,6 +97,8 @@ def draw_skel_and_kp(
     adjacent_keypoints = []
     cv_keypoints = []
     for ii, score in enumerate(instance_scores):
+      
+
         if score < min_pose_score:
             continue
 
