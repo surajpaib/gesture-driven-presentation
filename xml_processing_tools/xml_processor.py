@@ -12,7 +12,7 @@ keys: 'Label', 'FPS', 'Frame'
 (Label is string, FPS is number, Frame has 3. layer)
 
 XML file 3. layer:
-array of lentgh: 36
+array of lentgh: 36 (Depends on time?)
 
 XML file 4. layer:
 keys: 'Avg_x', 'Avg_y', 'Avg_dist', 'Keypoint'
@@ -20,7 +20,7 @@ keys: 'Avg_x', 'Avg_y', 'Avg_dist', 'Keypoint'
 
 
 XML file 5. layer:
-array of lentgh: 18 (ID, X, Y, Confidence)
+array of lentgh: 18 (ID, X, Y, Confidence) (Depends on time?)
 """
 
 with open('rnext.xml') as fd:
