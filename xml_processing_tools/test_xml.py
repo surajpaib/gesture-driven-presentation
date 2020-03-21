@@ -1,7 +1,15 @@
-
 import pandas as pd
 import xmltodict
 import numpy as np
+import os
+from sklearn.model_selection import train_test_split
+from keras.models import Sequential
+from keras.layers import Dense
+from keras.layers import Flatten
+from keras.layers import Dropout
+from keras.layers import LSTM
+from keras.utils import to_categorical
+
 
 """
 XML file 1. layer:
@@ -19,27 +27,33 @@ array of lentgh: 18 (ID, X, Y, Confidence) (18: Count of keypoints
 """
 
 
-
 '''
 Convert data into TrainX (nr_of_example, nr_timestep, 12). 
-@Onur: I misunderstood the nr_timestep. Actually it is the number of coordinates (or nr of sampled frame or each video ) the training data.
 '''
-def read_data(dic_filename):
+
+
+def load_data_file(dic_filename):
+    '''
+    dataX is ndarray (25,12)
+    dataY is ndarray (1, 4)
+    '''
     with open(dic_filename) as fd:
         doc = xmltodict.parse(fd.read())
     #############DataX##############
     dataX = []
-    nr_timestep = 25 #Video is 30fps and at least 1 second. #TODO: A fixed value is not a wise choice.
-    for idx in np.linspace(3, len(doc['data']['Frame'])-3, nr_timestep, dtype = int): # Remove the noise in the beginning and ending
+    nr_timestep = 25  # Video is 30fps and at least 1 second. #TODO: A fixed value is not a wise choice.
+    for idx in np.linspace(3, len(doc['data']['Frame']) - 3, nr_timestep,
+                           dtype=int):  # Remove the noise in the beginning and ending
         data_X = []
-        for j in [2, 3, 4, 5, 6, 7]:  # The order must be consistent: left shoulder, left elbow, left wrist, right shoulder, right elbow, right wrist
+        for j in [2, 3, 4, 5, 6,
+                  7]:  # The order must be consistent: left shoulder, left elbow, left wrist, right shoulder, right elbow, right wrist
             data_X.append(float(doc['data']['Frame'][idx]['Keypoint'][j - 1]['X']))
             data_X.append(float(doc['data']['Frame'][idx]['Keypoint'][j - 1]['Y']))
         dataX.append(data_X)
     dataX = np.vstack(dataX)
 
     #############DataY##############
-    dataY=[]
+    dataY = []
     if 'Iprev' in dic_filename:
         dataY = [1, 0, 0, 0]
     elif 'reset' in dic_filename:
@@ -53,26 +67,55 @@ def read_data(dic_filename):
 
     return dataX, dataY
 
-dic_filename = 'rnext.xml'
-dataX, dataY = read_data(dic_filename)
 
-#TODO: The desired trainX shape is (nr_example, nr_timestep (set as 25), 12(2D coords of 6keypoints)). The trainY shape is (nr_example, 4). Next step is to iterate all files and stack data.
+# dic_filename = 'rnext.xml'
+# dataX, dataY = read_data(dic_filename)
+
+def load_data_dic(file_dic):
+    '''
+    X is ndarray (nr_files, 25, 12)
+    Y is ndarray (nr_files, 4)
+    '''
+    trainX = []
+    trainY = []
+    # testX = []
+    for filename in os.listdir(file_dic):
+        dataX, dataY = load_data_file(file_dic + filename)
+        trainX.append(dataX)
+        trainY.append(dataY)
+    X = np.stack(trainX)
+    Y = np.stack(trainY)
+    return X, Y
 
 
-#TODO: I checked the video length with the following, and it ranges in 25-90. However I met a bug in parsing xml file, See the following.
-###################Iterate files and check length
-# import os
-# directory = '/Users/lizhaolin/Downloads/preprocessed_video_data/xml_files/LPrev/'
-#
-# lengths=[]
-# for filename in os.listdir(directory):
-#     if filename.endswith(".xml"):
-#         print(filename)
-#         fd = open(directory + filename)
-#         doc = xmltodict.parse(fd.read())
-#         print(len(doc['data']['Frame']))
-#         lengths.append(len(doc['data']['Frame']))
-#
-# ######A bug in parsing this file
-# fd = open(directory + 'lprev (1).xml')
-# #doc = xmltodict.parse(fd.read()) #ERROR: , in parse  parser.Parse(xml_input, True) xml.parsers.expat.ExpatError: mismatched tag: line 1, column 243
+def evaluate_model(trainX, trainy, testX, testy):
+    verbose, epochs, batch_size = 0, 15, 64
+    n_timesteps, n_features, n_outputs = trainX.shape[1], trainX.shape[2], trainy.shape[1]  # 128, 9, 6
+    model = Sequential()
+    model.add(LSTM(100, input_shape=(n_timesteps, n_features)))
+    model.add(Dropout(0.5))
+    model.add(Dense(100, activation='relu'))
+    model.add(Dense(n_outputs, activation='softmax'))
+    model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
+    # fit network
+    model.fit(trainX, trainy, epochs=epochs, batch_size=batch_size, verbose=verbose)
+    # evaluate model
+    _, accuracy = model.evaluate(testX, testy, batch_size=batch_size, verbose=0)
+    return accuracy
+
+
+
+################## Main code #################
+
+file_dic = '/Users/lizhaolin/Downloads/preprocessed_video_data/xml_files/test_dic/'
+X, Y = load_data_dic(file_dic)
+repeats = 10
+X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size=0.3, random_state=42)
+scores = list()
+for r in range(repeats):
+    score = evaluate_model(trainX, trainy, testX, testy)
+    score = score * 100.0
+    print('>#%d: %.3f' % (r + 1, score))
+    scores.append(score)
+
+summarize_results(scores)
