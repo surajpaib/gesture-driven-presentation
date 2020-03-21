@@ -2,20 +2,14 @@
 
 ### 1. Installation
 ```
-$ pip install opencv-python tensorflow
+$ pip install -r requirements
+```
+### 2. Run the pose estimation model
+```
+$ python pose_estimation.py
 ```
 
-### 2. Pose Detection Only
+For help with the flags and options
 ```
-$ python posenet_run.py
-```
-
-### 2. Hand Detection Only
-```
-$ python run.py
-```
-
-### 3. Combined Detection
-```
-$ python combined.py
+$ python pose_estimation.py --help
 ```
