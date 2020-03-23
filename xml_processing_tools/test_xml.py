@@ -10,6 +10,9 @@ from keras.layers import Dropout
 from keras.layers import LSTM
 from keras.utils import to_categorical
 import matplotlib.pyplot as plt
+from debugging_tools import *
+
+
 
 
 """
@@ -29,7 +32,7 @@ array of lentgh: 18 (ID, X, Y, Confidence) (18: Count of keypoints
 
 
 '''
-Convert data into TrainX (nr_of_example, nr_timestep, 12). 
+Convert data into TrainX (nr_of_example, nr_timestep, 12).
 '''
 
 length=[]
@@ -109,6 +112,16 @@ def evaluate_model(trainX, trainy, testX, testy):
 
 
 
+def getDataPath():
+    """
+    Relative path is used to store the data.
+    Please store the data in the same folder with the git repo:
+    ../gesture-driven-presentation       (git repo)
+    ../preprocessed_video_data           (xml data)
+    """
+    return "../../preprocessed_video_data/xml_files/"
+
+
 ################## Main code #################
 
 folders =['LPrev', 'Reset', 'RNext', 'StartStop']
@@ -117,7 +130,7 @@ folders = ['StartStop']
 X = []
 Y = []
 for folder in folders:
-    dic = '/Users/lizhaolin/Downloads/preprocessed_video_data/xml_files/'
+    dic = getDataPath()
     file_dic = dic + folder + '/'
     dataX, dataY = load_data_dic(file_dic)
     X.append(dataX)
