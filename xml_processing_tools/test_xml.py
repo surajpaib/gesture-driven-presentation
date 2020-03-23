@@ -9,6 +9,7 @@ from keras.layers import Flatten
 from keras.layers import Dropout
 from keras.layers import LSTM
 from keras.utils import to_categorical
+import matplotlib.pyplot as plt
 
 
 """
@@ -31,17 +32,19 @@ array of lentgh: 18 (ID, X, Y, Confidence) (18: Count of keypoints
 Convert data into TrainX (nr_of_example, nr_timestep, 12). 
 '''
 
-
+length=[]
 def load_data_file(dic_filename):
     '''
     dataX is ndarray (25,12)
     dataY is ndarray (1, 4)
     '''
     with open(dic_filename) as fd:
+        print(dic_filename)
         doc = xmltodict.parse(fd.read())
     #############DataX##############
     dataX = []
     nr_timestep = 25  # Video is 30fps and at least 1 second. #TODO: A fixed value is not a wise choice.
+    length.append(len(doc['data']['Frame']))
     for idx in np.linspace(3, len(doc['data']['Frame']) - 3, nr_timestep,
                            dtype=int):  # Remove the noise in the beginning and ending
         data_X = []
@@ -80,9 +83,10 @@ def load_data_dic(file_dic):
     trainY = []
     # testX = []
     for filename in os.listdir(file_dic):
-        dataX, dataY = load_data_file(file_dic + filename)
-        trainX.append(dataX)
-        trainY.append(dataY)
+        if (file_dic + filename).endswith(".xml"):
+            dataX, dataY = load_data_file(file_dic + filename)
+            trainX.append(dataX)
+            trainY.append(dataY)
     X = np.stack(trainX)
     Y = np.stack(trainY)
     return X, Y
@@ -107,13 +111,25 @@ def evaluate_model(trainX, trainy, testX, testy):
 
 ################## Main code #################
 
-file_dic = '/Users/lizhaolin/Downloads/preprocessed_video_data/xml_files/test_dic/'
-X, Y = load_data_dic(file_dic)
-repeats = 10
+folders =['LPrev', 'Reset', 'RNext', 'StartStop']
+
+folders = ['StartStop']
+X = []
+Y = []
+for folder in folders:
+    dic = '/Users/lizhaolin/Downloads/preprocessed_video_data/xml_files/'
+    file_dic = dic + folder + '/'
+    dataX, dataY = load_data_dic(file_dic)
+    X.append(dataX)
+    Y.append(dataY)
+
+X = np.vstack(X)
+Y = np.vstack(Y)
+repeats = 2
 X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size=0.3, random_state=42)
 scores = list()
 for r in range(repeats):
-    score = evaluate_model(trainX, trainy, testX, testy)
+    score = evaluate_model(X_train, y_train, X_test, y_test)
     score = score * 100.0
     print('>#%d: %.3f' % (r + 1, score))
     scores.append(score)
