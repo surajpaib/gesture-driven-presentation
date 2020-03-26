@@ -122,29 +122,75 @@ def getDataPath():
     return "../../preprocessed_video_data/xml_files/"
 
 
+def pickleChecker():
+    """
+    Checks if X, Y pickles exist. If Yes returns X, y.
+    If not returns IOError.
+    """
+    PICKLE_FOLDER = "../../pickles/"
+    file_name_x = 'X.npy'
+    file_name_y = 'Y.npy'
+
+    PICKLE_PATH_X = PICKLE_FOLDER + file_name_x
+    PICKLE_PATH_Y = PICKLE_FOLDER + file_name_y
+
+    try:
+        X = np.load(PICKLE_PATH_X)
+        Y = np.load(PICKLE_PATH_Y)
+        return X,Y
+    except IOError as ioe:
+        print(ioe)
+        return ioe
+
+def pickleSaver(array, file_name):
+    """
+    Saves a numpy array as .npy pickle to '../../pickles/file_name'
+    array: Numpy array
+    file_name: filename as string without extension.
+    """
+    directory = '../../pickles/'
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+    SAVE_PATH = '../../pickles/' + file_name + '.npy'
+    np.save(SAVE_PATH, array)
+    return None
+
 ################## Main code #################
 
 folders =['LPrev', 'Reset', 'RNext', 'StartStop']
 
 folders = ['StartStop']
-X = []
-Y = []
-for folder in folders:
-    dic = getDataPath()
-    file_dic = dic + folder + '/'
-    dataX, dataY = load_data_dic(file_dic)
-    X.append(dataX)
-    Y.append(dataY)
 
-X = np.vstack(X)
-Y = np.vstack(Y)
+loaded_pickle = pickleChecker()
+
+if type(loaded_pickle)==FileNotFoundError:
+    X = []
+    Y = []
+    for folder in folders:
+        dic = getDataPath()
+        file_dic = dic + folder + '/'
+        dataX, dataY = load_data_dic(file_dic)
+        X.append(dataX)
+        Y.append(dataY)
+
+    X = np.vstack(X)
+    Y = np.vstack(Y)
+    pickleSaver(X, 'X')
+    pickleSaver(Y, 'Y')
+
+else:
+    X = loaded_pickle[0]
+    Y = loaded_pickle[1]
+
 repeats = 2
-X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size=0.3, random_state=42)
+X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size=0.2, random_state=42)
 scores = list()
 for r in range(repeats):
     score = evaluate_model(X_train, y_train, X_test, y_test)
+
     score = score * 100.0
     print('>#%d: %.3f' % (r + 1, score))
     scores.append(score)
 
-summarize_results(scores)
+debug(scores)
+# summarize_results(scores)
