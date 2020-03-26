@@ -33,7 +33,7 @@ class Person():
         self.left_hand = Hand(self.keypoints[4])
         self.right_hand = Hand(self.keypoints[5])
 
-    def get_keypoints(self, heatmaps, offsets, output_stride=16):
+    def get_keypoints(self, heatmaps, offsets, output_stride=32):
         scores = sigmoid(heatmaps)
         num_keypoints = scores.shape[2]
         heatmap_positions = []
@@ -56,7 +56,7 @@ class Person():
         return keypoints
 
     def get_coords(self):
-        return [kp.point() for kp in self.keypoints if kp.confidence > 0.3]
+        return [kp.point() for kp in self.keypoints if kp.confidence > 0.5]
 
     def get_limbs(self):
         pairs = [
@@ -68,7 +68,7 @@ class Person():
         ]
       
         limbs = [(self.keypoints[i].point(), self.keypoints[j].point())
-                 for i, j in pairs if (self.keypoints[i].confidence > 0.3 and self.keypoints[j].confidence > 0.3)]
+                 for i, j in pairs if (self.keypoints[i].confidence > 0.5 and self.keypoints[j].confidence > 0.5)]
         return list(filter(lambda x: x is not None, limbs))
 
     def confidence(self):

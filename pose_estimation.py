@@ -80,7 +80,7 @@ if __name__ == "__main__":
             box_enlarge=1.3
         )
 
-    model = tf.lite.Interpreter('models/posenet.tflite')
+    model = tf.lite.Interpreter('models/posenet2.tflite')
     model.allocate_tensors()
     input_details = model.get_input_details()
     output_details = model.get_output_details()
@@ -91,10 +91,12 @@ if __name__ == "__main__":
     start = time.time()
 
     while cap.isOpened():
-        _, img = cap.read()
+        _, frame = cap.read()
+        hand_image = cv.cvtColor(frame, cv.COLOR_BGR2RGB)
+        img = np.copy(frame)
         print("original shape: ", img.shape)
-        img2 = cv.resize(img, (337, 337), interpolation=cv.INTER_LINEAR)
-        img = tf.reshape(tf.image.resize(img, [337, 337]), [1, 337, 337, 3])
+        img2 = cv.resize(img, (257, 257), interpolation=cv.INTER_LINEAR)
+        img = tf.reshape(tf.image.resize(img, [257, 257]), [1, 257, 257, 3])
         if floating_model:
             img = (np.float32(img) - 127.5) / 127.5
         model.set_tensor(input_details[0]['index'], img)
@@ -107,24 +109,23 @@ if __name__ == "__main__":
         p = Person(output_data, offset_data)
 
         if args.hand_pose:
-            points, _ = detector(img2)
+            points, _ = detector(hand_image)
 
 
 
-        img = draw(p, img2, args.label_joints)
+        pimg = draw(p, img2, args.label_joints)
     
         if args.hand_pose:
             if points is not None:
                 for point in points:
                     x, y = point
-                    cv.circle(img, (int(x), int(y)), THICKNESS * 2, POINT_COLOR, THICKNESS)
+                    cv.circle(pimg, (int(x * 257/hand_image.shape[1]), int(y*  257/hand_image.shape[0])), THICKNESS * 2, POINT_COLOR, THICKNESS)
                 for connection in connections:
                     x0, y0 = points[connection[0]]
                     x1, y1 = points[connection[1]]
-                    cv.line(img, (int(x0), int(y0)), (int(x1), int(y1)), CONNECTION_COLOR, THICKNESS)
+                    cv.line(pimg, (int(x0*  257/hand_image.shape[1]), int(y0*  257/hand_image.shape[0])), (int(x1* 257/hand_image.shape[1]), int(y1*  257/hand_image.shape[0])), CONNECTION_COLOR, THICKNESS)
 
-        cv.imshow("Pose", img)
-
+        cv.imshow("Pose", pimg)
 
         cv.waitKey(1)
         frame_count += 1
