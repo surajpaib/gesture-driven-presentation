@@ -156,7 +156,11 @@ def pickleSaver(array, file_name):
     return None
 
 ################## Main code #################
-
+"""
+Important:
+The X, Y pickles changes depending on the "folders" variable.
+Delete pickles folder if "folders" variable changes.
+"""
 folders =['LPrev', 'Reset', 'RNext', 'StartStop']
 
 folders = ['StartStop']
