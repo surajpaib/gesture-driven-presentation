@@ -1,15 +1,12 @@
 # import xmltodict
 import numpy as np
 # import os
+
 from sklearn.model_selection import train_test_split
 from keras.models import Sequential
 from keras.layers import Dense
-from keras.layers import Flatten
 from keras.layers import Dropout
 from keras.layers import LSTM
-from keras.utils import to_categorical
-import matplotlib.pyplot as plt
-from debugging_tools import *
 from xml_processing_tools import *
 
 
@@ -37,7 +34,6 @@ X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size=0.2, random_
 scores = list()
 for r in range(repeats):
     score = evaluate_model(X_train, y_train, X_test, y_test)
-
     score = score * 100.0
     print('>#%d: %.3f' % (r + 1, score))
     scores.append(score)
