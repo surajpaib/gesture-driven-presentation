@@ -1,8 +1,15 @@
 import xmltodict
 import numpy as np
 import os
-from keras.preprocessing import sequence
-from debugging_tools import *
+# from sklearn.model_selection import train_test_split
+# from keras.models import Sequential
+# from keras.layers import Dense
+# from keras.layers import Flatten
+# from keras.layers import Dropout
+# from keras.layers import LSTM
+# from keras.utils import to_categorical
+# import matplotlib.pyplot as plt
+# from debugging_tools import *
 
 
 
@@ -40,8 +47,6 @@ def load_data_file(dic_filename):
     dataX = []
     nr_timestep = 25  # Video is 30fps and at least 1 second. #TODO: A fixed value is not a wise choice.
     length.append(len(doc['data']['Frame']))
-    # for idx in range(3, len(doc['data']['Frame']) - 3):
-
     for idx in np.linspace(3, len(doc['data']['Frame']) - 3, nr_timestep,
                            dtype=int):  # Remove the noise in the beginning and ending
         data_X = []
@@ -54,7 +59,7 @@ def load_data_file(dic_filename):
 
     #############DataY##############
     dataY = []
-    if 'Iprev' in dic_filename:
+    if 'lprev' in dic_filename:
         dataY = [1, 0, 0, 0]
     elif 'reset' in dic_filename:
         dataY = [0, 1, 0, 0]
@@ -81,8 +86,7 @@ def load_data_dic(file_dic):
             dataX, dataY = load_data_file(file_dic + filename)
             trainX.append(dataX)
             trainY.append(dataY)
-    X = sequence.pad_sequences(trainX, maxlen=160, dtype='float32', padding='post', truncating='post' )
-    # X = np.stack(trainX)
+    X = np.stack(trainX)
     Y = np.stack(trainY)
     return X, Y
 
@@ -152,7 +156,6 @@ def xmlToNumpy():
         for folder in folders:
             dic = getDataPath()
             file_dic = dic + folder + '/'
-            print('file_dic')
             dataX, dataY = load_data_dic(file_dic)
             X.append(dataX)
             Y.append(dataY)
@@ -163,8 +166,7 @@ def xmlToNumpy():
         pickleSaver(Y, 'Y')
 
     else:
-        print('Pickle: FileFoundError')
         X = loaded_pickle[0]
         Y = loaded_pickle[1]
 
-    return X, Y
+    return X,Y

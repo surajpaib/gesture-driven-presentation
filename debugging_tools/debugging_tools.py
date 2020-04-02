@@ -1,6 +1,7 @@
 
 import pandas as pd
 import numpy as np
+import sys
 
 from datetime import datetime
 
@@ -47,7 +48,7 @@ def printall(variable):
     """
     Print everything of numpy or pandas variable.
     """
-    np.set_printoptions(threshold=np.nan)
+    np.set_printoptions(threshold=sys.maxsize)
     pd.set_option('display.max_columns', None)
     pd.set_option('display.max_rows', None)
     print(variable)
