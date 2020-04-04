@@ -1,30 +1,33 @@
-# import xmltodict
 import numpy as np
-# import os
 from sklearn.model_selection import train_test_split
 from keras.models import Sequential
 from keras.layers import Dense
+from keras.layers import Flatten
 from keras.layers import Dropout
 from keras.layers import LSTM
-from xml_processing_tools import *
+from keras.utils import to_categorical
+import matplotlib.pyplot as plt
 from debugging_tools import *
+from xml_processing_tools import *
+from keras.callbacks import LambdaCallback
+
 
 def evaluate_model(trainX, trainy, testX, testy):
-    verbose, epochs, batch_size = 0, 15, 8
+    verbose, epochs, batch_size = 0, 15, 64
     n_timesteps, n_features, n_outputs = trainX.shape[1], trainX.shape[2], trainy.shape[1]  # 128, 9, 6
     model = Sequential()
     model.add(LSTM(100, input_shape=(n_timesteps, n_features)))
     model.add(Dropout(0.5))
     model.add(Dense(100, activation='relu'))
     model.add(Dense(n_outputs, activation='softmax'))
+    print_weights = LambdaCallback(on_epoch_end=lambda batch, logs: print(model.layers[0].get_weights()))
     model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
     # fit network
-    model.fit(trainX, trainy, epochs=epochs, batch_size=batch_size, verbose=verbose)
+    model.fit(trainX, trainy, epochs=epochs, batch_size=batch_size, verbose=verbose, callbacks = [print_weights])
     # evaluate model
     _, train_accuracy = model.evaluate(trainX, trainy, batch_size=batch_size, verbose=0)
     _, test_accuracy = model.evaluate(testX, testy, batch_size=batch_size, verbose=0)
     return train_accuracy, test_accuracy
-
 
 
 X,Y = xmlToNumpy()

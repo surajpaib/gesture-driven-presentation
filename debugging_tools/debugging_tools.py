@@ -78,3 +78,34 @@ def execTime(function, *args, **kwargs):
     function(*args, **kwargs)
     end = getTime()
     return print(function, "\n", end-start)
+
+##############################
+
+# Get if array has NaN. If True count number of NaN values:
+
+def hasNaN(array):
+    """
+    Check if array has NaN values. If True count the number of NaN values.
+    array: numpy array to check.
+    """
+    has_nan = np.isnan(array).any()
+    nan_count = 0
+    if has_nan==True:
+        nan_count = np.count_nonzero(np.isnan(X))
+    return "{}. The array has {} NaN values".format(has_nan, nan_count)
+
+###############################
+
+# Get coordinates of NaN values in an array.
+
+def getNaNCoordinates(array):
+    """
+    Get coordinates of NaN values in an array.
+    array: numpy array to check.
+    """
+    nan_coordinates = np.where(np.isnan(array))
+    zipped_coordinates = np.dstack((nan_coordinates[0],
+                                    nan_coordinates[1],
+                                    nan_coordinates[2]))
+    zipped_coordinates = np.squeeze(zipped_coordinates, axis=0)
+    return zipped_coordinates

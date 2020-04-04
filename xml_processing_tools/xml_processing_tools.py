@@ -1,17 +1,8 @@
 import xmltodict
 import numpy as np
 import os
-# from sklearn.model_selection import train_test_split
-# from keras.models import Sequential
-# from keras.layers import Dense
-# from keras.layers import Flatten
-# from keras.layers import Dropout
-# from keras.layers import LSTM
-# from keras.utils import to_categorical
-# import matplotlib.pyplot as plt
-# from debugging_tools import *
-
-
+from debugging_tools import *
+from preprocessing_tools import *
 
 
 """
@@ -86,6 +77,7 @@ def load_data_dic(file_dic):
             dataX, dataY = load_data_file(file_dic + filename)
             trainX.append(dataX)
             trainY.append(dataY)
+    # X = pad_sequences(trainX, maxlen=120, dtype='float32', padding='post', truncating='post')
     X = np.stack(trainX)
     Y = np.stack(trainY)
     return X, Y
@@ -137,13 +129,15 @@ def pickleSaver(array, file_name):
 
 ################## Main code #################
 
-def xmlToNumpy():
+def xmlToNumpy(preprocessing=True):
     """
     Get X,Y values from xml files. If pickles exist first tries to read from
     pickles. If not read from .xml files.
     Important:
     The X, Y pickles changes depending on the "folders" variable.
     Delete pickles folder in (../../pickles) if "folders" variable changes.
+    preprocessing (default: True): If preprocessing=True preprocess X with
+                                   preprocessing_tools package before saving.
     """
     folders =['LPrev', 'Reset', 'RNext', 'StartStop']
     # folders = ['StartStop']
@@ -162,6 +156,10 @@ def xmlToNumpy():
 
         X = np.vstack(X)
         Y = np.vstack(Y)
+
+        if preprocessing==True:
+            X = preprocessNumpy(X)
+
         pickleSaver(X, 'X')
         pickleSaver(Y, 'Y')
 
