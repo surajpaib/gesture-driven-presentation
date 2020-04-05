@@ -18,7 +18,7 @@ def deleteNaN(array):
     for i in range(array.shape[0]):
         row = array[i]
         # Remove NaNs in place in axis=1:
-        row = row[~np.isnan(row).any(axis=1)] # operator ~ means complementary
+        row = row[~np.isnan(row).any(axis=1)]
         # Create NaNs with same size to add to the end of array:
         deleted_row_count = array[i].shape[0] - row.shape[0]
         array_nan = np.empty((deleted_row_count, shape2))
@@ -32,13 +32,12 @@ def deleteNaN(array):
     return nan_removed
 
 
-def kerasPadTruncate(array, max_len=120):
+def kerasTruncate(array):
     """
-    Sequences that are shorter than maxlen are padded with 0 value at the end.
-    Sequences longer than maxlen are truncated so that they fit the desired length.
-    array: A list of sequence
+    Truncate an array with adding "0" to the end of the array.
+    array: Numpy array to truncate.
     """
-    array = pad_sequences(array, maxlen=max_len, dtype='float32', padding='post', truncating='post')
+    array = pad_sequences(array, maxlen=120, dtype='float32', padding='post', truncating='post')
     return array
 
 ################## Main code #################
@@ -49,5 +48,6 @@ def preprocessNumpy(array):
     array: Array to process. For deleteNaN() array must be 3d.
     """
     array = deleteNaN(array)
+    array = kerasTruncate(array)
 
     return array
