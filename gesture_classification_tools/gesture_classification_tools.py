@@ -52,7 +52,7 @@ def evaluate_model(trainX, trainy, testX, testy, load_model=False,
     load_model: If True load the model from file name.
     filename: File of the model.
     """
-    verbose, epochs, batch_size = 0, 1, 36
+    verbose, epochs, batch_size = 0, 10, 36
     n_timesteps, n_features, n_outputs = trainX.shape[1], trainX.shape[2], trainy.shape[1]  # 128, 9, 6
     if load_model==True:
         model = loadKerasModel(filename)
