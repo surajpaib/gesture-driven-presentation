@@ -38,9 +38,11 @@ def createKerasModel(timestep, feature, output):
     model.add(Dropout(0.5))
     model.add(Dense(100, activation='relu'))
     model.add(Dense(output, activation='softmax'))
-    print("Keras model is created:")
+    print("Keras model is icreated:")
     model.summary()
     return model
+
+
 
 def evaluate_model(trainX, trainy, testX, testy, load_model=False,
                    filename='LSTM_model.h5', save_model=False):
@@ -52,14 +54,16 @@ def evaluate_model(trainX, trainy, testX, testy, load_model=False,
     load_model: If True load the model from file name.
     filename: File of the model.
     """
-    verbose, epochs, batch_size = 0, 10, 36
+
+    verbose, epochs, batch_size = 0, 50, 36
     n_timesteps, n_features, n_outputs = trainX.shape[1], trainX.shape[2], trainy.shape[1]  # 128, 9, 6
     if load_model==True:
         model = loadKerasModel(filename)
     else:
         model = createKerasModel(n_timesteps, n_features, n_outputs)
 
-    print_weights = LambdaCallback(on_epoch_end=lambda epoch, logs: print(model.layers[0].get_weights()))
+    # print_weights = LambdaCallback(on_epoch_end=lambda epoch, logs: print(model.layers[0].get_weights()))
+    print_epoch_nr = LambdaCallback(on_epoch_end=lambda epoch, logs: print(epoch))
     model.compile(loss='categorical_crossentropy',
                   optimizer=tf.optimizers.Adam(learning_rate=0.0001,
                                                beta_1=0.9,
@@ -87,7 +91,7 @@ def evaluate_model(trainX, trainy, testX, testy, load_model=False,
 
 ################### Main function #########################
 
-X,Y = xmlToNumpy()
+X, Y = xmlToNumpy()
 
 
 repeats = 1

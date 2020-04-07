@@ -36,10 +36,11 @@ def load_data_file(dic_filename):
         doc = xmltodict.parse(fd.read())
     #############DataX##############
     dataX = []
-    nr_timestep = 25  # Video is 30fps and at least 1 second. #TODO: A fixed value is not a wise choice.
-    length.append(len(doc['data']['Frame']))
-    for idx in np.linspace(3, len(doc['data']['Frame']) - 3, nr_timestep,
-                           dtype=int):  # Remove the noise in the beginning and ending
+    nr_timestep = 25  # Video is 30fps and at least 1 second.
+    # length.append(len(doc['data']['Frame']))
+    for idx in range(len(doc['data']['Frame'])): #Load all frames
+    # for idx in np.linspace(3, len(doc['data']['Frame']) - 3, nr_timestep,
+    #                        dtype=int):  # Remove the noise in the beginning and ending
         data_X = []
         for j in [2, 3, 4, 5, 6,
                   7]:  # The order must be consistent: left shoulder, left elbow, left wrist, right shoulder, right elbow, right wrist
@@ -64,7 +65,7 @@ def load_data_file(dic_filename):
     return dataX, dataY
 
 
-def load_data_dic(file_dic):
+def load_data_dic(file_dic, preprocessing=True):
     '''
     X is ndarray (nr_files, 25, 12)
     Y is ndarray (nr_files, 4)
@@ -77,7 +78,10 @@ def load_data_dic(file_dic):
             dataX, dataY = load_data_file(file_dic + filename)
             trainX.append(dataX)
             trainY.append(dataY)
-    # X = pad_sequences(trainX, maxlen=120, dtype='float32', padding='post', truncating='post')
+
+    if preprocessing == True:
+        trainX = preprocessNumpy(trainX)
+
     X = np.stack(trainX)
     Y = np.stack(trainY)
     return X, Y
@@ -129,7 +133,7 @@ def pickleSaver(array, file_name):
 
 ################## Main code #################
 
-def xmlToNumpy(preprocessing=True):
+def xmlToNumpy(preprocessing = True):
     """
     Get X,Y values from xml files. If pickles exist first tries to read from
     pickles. If not read from .xml files.
@@ -157,8 +161,8 @@ def xmlToNumpy(preprocessing=True):
         X = np.vstack(X)
         Y = np.vstack(Y)
 
-        if preprocessing==True:
-            X = preprocessNumpy(X)
+        # if preprocessing == True:
+        #     X = preprocessNumpy(X)
 
         pickleSaver(X, 'X')
         pickleSaver(Y, 'Y')

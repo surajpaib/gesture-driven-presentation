@@ -32,12 +32,13 @@ def deleteNaN(array):
     return nan_removed
 
 
-def kerasTruncate(array):
+def kerasTruncate(array, max_len=120):
     """
-    Truncate an array with adding "0" to the end of the array.
+    Sequences that are shorter than maxlen are padded with 0 value at the end.
+    Sequences longer than maxlen are truncated so that they fit the desired length.
     array: Numpy array to truncate.
     """
-    array = pad_sequences(array, maxlen=120, dtype='float32', padding='post', truncating='post')
+    array = pad_sequences(array, maxlen=max_len, dtype='float32', padding='post', truncating='post')
     return array
 
 ################## Main code #################
@@ -47,7 +48,8 @@ def preprocessNumpy(array):
     Main function of preprocessing tools.
     array: Array to process. For deleteNaN() array must be 3d.
     """
-    array = deleteNaN(array)
-    array = kerasTruncate(array)
 
+
+    array = kerasTruncate(array)
+    array = deleteNaN(array)
     return array
