@@ -3,29 +3,34 @@ import numpy as np
 import os
 from debugging_tools import *
 from preprocessing_tools import *
+from pathlib import Path
 
 
 """
+
 XML file 1. layer:
 keys: 'data'
+
 XML file 2. layer:
 keys: 'Label', 'FPS', 'Frame'
 (Label is string, FPS is number, Frame has 3. layer)
+
 XML file 3. layer:
 array of lentgh: 36 (Depends on time)
+
 XML file 4. layer:
 keys: 'Avg_x', 'Avg_y', 'Avg_dist', 'Keypoint'
 (Avg_x, Avg_y, Avg_dist are numbers, Keypoint has 5.layer)
+
 XML file 5. layer:
 array of lentgh: 18 (ID, X, Y, Confidence) (18: Count of keypoints
+
 """
 
 
 '''
 Convert data into TrainX (nr_of_example, nr_timestep, 12).
 '''
-
-length=[]
 def load_data_file(dic_filename):
     '''
     dataX is ndarray (25,12)
@@ -39,11 +44,12 @@ def load_data_file(dic_filename):
     nr_timestep = 25  # Video is 30fps and at least 1 second.
     # length.append(len(doc['data']['Frame']))
     for idx in range(len(doc['data']['Frame'])): #Load all frames
-    # for idx in np.linspace(3, len(doc['data']['Frame']) - 3, nr_timestep,
-    #                        dtype=int):  # Remove the noise in the beginning and ending
+        # for idx in np.linspace(3, len(doc['data']['Frame']) - 3, nr_timestep,
+        #                        dtype=int):  # Remove the noise in the beginning and ending
         data_X = []
-        for j in [2, 3, 4, 5, 6,
-                  7]:  # The order must be consistent: left shoulder, left elbow, left wrist, right shoulder, right elbow, right wrist
+        #  The order must be consistent:
+        #  left shoulder, left elbow, left wrist, right shoulder, right elbow, right wrist
+        for j in [2, 3, 4, 5, 6, 7]:
             data_X.append(float(doc['data']['Frame'][idx]['Keypoint'][j - 1]['X']))
             data_X.append(float(doc['data']['Frame'][idx]['Keypoint'][j - 1]['Y']))
         dataX.append(data_X)
@@ -65,7 +71,7 @@ def load_data_file(dic_filename):
     return dataX, dataY
 
 
-def load_data_dic(file_dic, preprocessing=True):
+def load_data_dic(file_dic, preprocessing = True):
     '''
     X is ndarray (nr_files, 25, 12)
     Y is ndarray (nr_files, 4)
@@ -73,9 +79,11 @@ def load_data_dic(file_dic, preprocessing=True):
     trainX = []
     trainY = []
     # testX = []
+    asd = os.listdir(file_dic)
     for filename in os.listdir(file_dic):
-        if (file_dic + filename).endswith(".xml"):
-            dataX, dataY = load_data_file(file_dic + filename)
+        file = Path(str(file_dic) + "/" + filename)
+        if file.exists() and file.suffix == ".xml":
+            dataX, dataY = load_data_file(str(file))
             trainX.append(dataX)
             trainY.append(dataY)
 
@@ -103,16 +111,16 @@ def pickleChecker():
     If not returns IOError.
     """
     PICKLE_FOLDER = "../../pickles/"
-    file_name_x = 'X.npy'
-    file_name_y = 'Y.npy'
+    #file_name_x = 'X.npy'
+    #file_name_y = 'Y.npy'
 
-    PICKLE_PATH_X = PICKLE_FOLDER + file_name_x
-    PICKLE_PATH_Y = PICKLE_FOLDER + file_name_y
+    PICKLE_PATH_X = Path(PICKLE_FOLDER + 'X.npy')
+    PICKLE_PATH_Y = Path(PICKLE_FOLDER + 'Y.npy')
 
     try:
         X = np.load(PICKLE_PATH_X)
         Y = np.load(PICKLE_PATH_Y)
-        return X,Y
+        return X, Y
     except IOError as ioe:
         print(ioe)
         return ioe
@@ -143,32 +151,36 @@ def xmlToNumpy(preprocessing = True):
     preprocessing (default: True): If preprocessing=True preprocess X with
                                    preprocessing_tools package before saving.
     """
-    folders =['LPrev', 'Reset', 'RNext', 'StartStop']
-    # folders = ['StartStop']
+
+    folders = ['LPrev', 'Reset', 'RNext', 'StartStop']
 
     loaded_pickle = pickleChecker()
 
-    if type(loaded_pickle)==FileNotFoundError:
-        X = []
-        Y = []
-        for folder in folders:
-            dic = getDataPath()
-            file_dic = dic + folder + '/'
-            dataX, dataY = load_data_dic(file_dic)
-            X.append(dataX)
-            Y.append(dataY)
-
-        X = np.vstack(X)
-        Y = np.vstack(Y)
-
-        # if preprocessing == True:
-        #     X = preprocessNumpy(X)
-
-        pickleSaver(X, 'X')
-        pickleSaver(Y, 'Y')
-
-    else:
+    if type(loaded_pickle) != FileNotFoundError:
         X = loaded_pickle[0]
         Y = loaded_pickle[1]
+    else:
+        X, Y = [], []
 
-    return X,Y
+        for folder in folders:
+            dic = getDataPath()
+            file_dic = Path(dic + folder + '/')
+
+            if not file_dic.exists():
+                print(file_dic, " does not exist")
+            else:
+                dataX, dataY = load_data_dic(file_dic)
+                X.append(dataX)
+                Y.append(dataY)
+
+        if len(X) != 0 and len(Y) != 0:
+            X = np.vstack(X)
+            Y = np.vstack(Y)
+
+            # if preprocessing == True:
+            #     X = preprocessNumpy(X)
+
+            pickleSaver(X, 'X')
+            pickleSaver(Y, 'Y')
+
+    return X, Y

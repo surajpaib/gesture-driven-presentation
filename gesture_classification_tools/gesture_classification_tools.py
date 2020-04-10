@@ -89,31 +89,36 @@ def evaluate_model(trainX, trainy, testX, testy, load_model=False,
     return train_accuracy, test_accuracy
 
 
+def main():
+    X, Y = xmlToNumpy()
+
+    if len(X) == 0 or len(Y) == 0:
+        return 0
+
+
+    repeats = 1
+    X_train, X_test, y_train, y_test = train_test_split(X, Y,
+                                                        test_size=0.20,
+                                                        random_state=42)
+    scores = list()
+    for r in range(repeats):
+        train_test_scores = evaluate_model(X_train, y_train, X_test, y_test,
+                                           load_model=False,
+                                           filename='LSTM_model.h5',
+                                           save_model=False)
+        train_score = train_test_scores[0]
+        test_score = train_test_scores[1]
+        train_score = train_score * 100.0
+        test_score = test_score * 100.0
+
+        print('train score: >#%d: %.3f' % (r + 1, train_score))
+        print('test score: >#%d: %.3f' % (r + 1, test_score))
+        scores.append(train_score)
+        scores.append(test_score)
+
+    # debug(scores)
+    # summarize_results(scores)
+
+
 ################### Main function #########################
-
-X, Y = xmlToNumpy()
-
-
-repeats = 1
-X_train, X_test, y_train, y_test = train_test_split(X, Y,
-                                                    test_size=0.20,
-                                                    random_state=42)
-scores = list()
-for r in range(repeats):
-    train_test_scores = evaluate_model(X_train, y_train, X_test, y_test,
-                                       load_model=False,
-                                       filename='LSTM_model.h5',
-                                       save_model=False)
-    train_score = train_test_scores[0]
-    test_score = train_test_scores[1]
-    train_score = train_score * 100.0
-    test_score = test_score * 100.0
-
-    print('train score: >#%d: %.3f' % (r + 1, train_score))
-    print('test score: >#%d: %.3f' % (r + 1, test_score))
-    scores.append(train_score)
-    scores.append(test_score)
-
-
-# debug(scores)
-# summarize_results(scores)
+main()
