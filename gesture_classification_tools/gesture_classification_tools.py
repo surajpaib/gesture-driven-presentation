@@ -89,6 +89,22 @@ def evaluate_model(trainX, trainy, testX, testy, load_model=False,
     return train_accuracy, test_accuracy
 
 
+def socketClassifier(movement_array, filename = 'LSTM_model.h5'):
+    """
+    Takes the movement as numpy array from pose recognition and outputs the
+    gesture prediction array.
+    movement_array: Input array with shape (1,120,12) from pose recognition
+    software.
+    gesture_prediction_array: gesture prediction as numpy array of shape (1,4)
+    An example output: [[0.72739744 0.09658778 0.01169323 0.16432151]]
+    """
+    model = load_model(filename)
+    gesture_prediction_array = model.predict(movement_array)
+
+    return gesture_prediction_array
+
+
+
 def main():
     X, Y = xmlToNumpy()
 
@@ -119,6 +135,13 @@ def main():
     # debug(scores)
     # summarize_results(scores)
 
+def main2():
+    # Test array for gesture prediction with socketClassifier():
+    test_array = np.arange(1440).reshape([1,120,12])
+    gesture_array = socketClassifier(test_array)
+    debug(gesture_array)
+
 
 ################### Main function #########################
 main()
+# main2()
