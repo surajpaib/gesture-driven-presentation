@@ -13,7 +13,8 @@ def exportKerastoProtobuf(path_to_h5='LSTM_model.h5',
     export_path: Path to store Protobuf model.
     """
     model = tf.keras.models.load_model(path_to_h5)
-    model.save("serving_model")
+    # Error if folder name is not "1"!
+    model.save("1")
 
 
 exportKerastoProtobuf()
