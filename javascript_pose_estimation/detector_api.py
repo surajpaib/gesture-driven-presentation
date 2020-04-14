@@ -14,7 +14,7 @@ import cv2
 
 class MainHandler(tornado.web.RequestHandler):
     def get(self):
-        self.render("index.html")
+        self.render("dist/index.html")
 
 
 class SimpleWebSocket(tornado.websocket.WebSocketHandler):
@@ -36,13 +36,13 @@ class SimpleWebSocket(tornado.websocket.WebSocketHandler):
 def make_app():
     return tornado.web.Application([
         (r"/", MainHandler),
+        (r'/(.*)', tornado.web.StaticFileHandler, {'path': 'dist'}),        
         (r"/websocket", SimpleWebSocket)
     ])
 
 class Detector:
     def __init__(self):
         print(os.path.dirname(os.path.realpath(__file__)))
-        subprocess.Popen(["/usr/local/bin/yarn", "watch"], cwd=os.path.dirname(os.path.realpath(__file__)))
         app = make_app()
         app.listen(7777)
         print("Start Server ...")
