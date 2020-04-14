@@ -5,17 +5,18 @@ import numpy as np
 
 
 """
-Testing of keras serving model:
+Testing of tensorflow serving model:
 """
 
 def testModelServer(array):
     """
-    Function to test the tensorflow serving model.
+    Client for the tensorflow serving model.
     array: Numpy array of shape (1,120,12)
-    120: frame test_size If frame is size smaller zeros can be added to the
-    end. 20 frames should be ok.
-    12: x an y points of body pose. The order must be consistent:
-    
+    120: frame size. If frame size of pose is smaller than 120, zeros can be
+    added to the end of the array. 20 frames of coordinates and the rest as
+    zeros should be ok for the prediction.
+    12: x an y points of body pose. Important! The order must be consistent:
+
     [left shoulder x, left shoulder y, left elbow x, left elbow y,
      left wrist x, left wrist y, right shoulder x, right shoulder y,
      right elbow x, right elbow y, right wrist x, right wrist y]
