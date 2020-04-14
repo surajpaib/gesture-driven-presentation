@@ -18,26 +18,24 @@ class MainHandler(tornado.web.RequestHandler):
 
 
 class SimpleWebSocket(tornado.websocket.WebSocketHandler):
-    connections = set()
-
     def open(self):
-        pass
+        print("WebSocket opened")
 
     def check_origin(self, origin):
-        pass
+        return True
 
     def on_message(self, message):
-        pass
+        self.write_message(u"You said: " + message)
 
     def on_close(self):
-        self.connections.remove(self)
+        print("WebSocket closed")
 
 
 def make_app():
     return tornado.web.Application([
         (r"/", MainHandler),
-        (r'/(.*)', tornado.web.StaticFileHandler, {'path': 'dist'}),        
-        (r"/websocket", SimpleWebSocket)
+        (r'/dist/(.*)', tornado.web.StaticFileHandler, {'path': 'dist'}),        
+        (r"/pose", SimpleWebSocket)
     ])
 
 class Detector:
