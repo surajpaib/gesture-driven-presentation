@@ -118,7 +118,7 @@ parcelRequire = (function (modules, cache, entry, globalName) {
 
   return newRequire;
 })({"socket_client.js":[function(require,module,exports) {
-const ws = new WebSocket('ws://localhost:7777/pose');
+ws = new WebSocket('ws://localhost:7777/pose');
 
 ws.onopen = function () {
   // Web Socket is connected, send data using send()

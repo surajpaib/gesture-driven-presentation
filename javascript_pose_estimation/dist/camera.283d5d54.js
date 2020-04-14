@@ -65164,6 +65164,7 @@ function detectPoseInRealTime(video, net, handposemodel) {
 
     stats.end();
     frame_count += 1;
+    ws.send(poses);
     requestAnimationFrame(poseDetectionFrame);
   }
 

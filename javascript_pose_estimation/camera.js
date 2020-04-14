@@ -531,7 +531,7 @@ function detectPoseInRealTime(video, net, handposemodel) {
     // End monitoring code for frames per second
     stats.end();
     frame_count += 1;
-
+    ws.send(poses);
     requestAnimationFrame(poseDetectionFrame);
   }
 
