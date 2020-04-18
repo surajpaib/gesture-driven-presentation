@@ -36,4 +36,9 @@ To run the server enter in terminal:
 tensorflow_model_server --model_base_path=<absolute_path_to_folder_which_contains_/1 folder> --rest_api_port=9000 --model_name=saved_model
 
 To test the server run the test_client.py.
+---------------------------------------------------------------------------
+The model_load_all_frame.h5 file:
+-Load all frames of each data file, then truncate/pad to 120 data length. 
+-80% data for training and 20% data for testing
+-The result is 97% training accuracy and 95% testing accuracy.
 
