@@ -11,21 +11,37 @@ Testing of tensorflow serving model:
 def testModelServer(array):
     """
     Client for the tensorflow serving model.
+
+    Input:
     array: Numpy array of shape (1,120,12)
     120: frame size. If frame size of pose is smaller than 120, zeros can be
     added to the end of the array. 20 frames of coordinates and the rest as
     zeros should be ok for the prediction.
     12: x an y points of body pose. Important! The order must be consistent:
-    
-    Data preprocessing before feeding to model:
-    The normalization is done with respect to size and position.
-        -The position is normalized by subtracting the so called average point from each keypoint. The average point is the point in the centre of the two shoulder points.
-        -The size is normalized by calculating the distance between the shoulder keypoints, then get all coordinates divided by this distance.
-     
+
     [left shoulder x, left shoulder y, left elbow x, left elbow y,
      left wrist x, left wrist y, right shoulder x, right shoulder y,
      right elbow x, right elbow y, right wrist x, right wrist y]
 
+    Before feeding the input "array" must be processed in the given execution
+    order:
+
+    1. Subtract the coordinates of the average point from each keypoint. The
+    average point is the middle of the shoulders.
+
+    average point x = (left shoulder x + right shoulder x)/2
+    average point y = (left shoulder y + right shoulder y)/2
+    subtracted keypoint x = keypoint x - average point x
+    subtracted keypoint y = keypoint y - average point y
+
+    2. Normalize by dividing the shoulder distance to all keypoints.
+    
+    shoulder distance x = |left shoulder x - right shoulder x|
+    shoulder distance y = |left shoulder y - right shoulder y|
+    normalized keypoint x = subtracted keypoint x / shoulder distance x
+    normalized keypoint y = subtracted keypoint y / shoulder distance y
+
+    Output:
     predictions: list in list output. The order is:
     [[lprev, reset, rnext, startstop]]
     """
