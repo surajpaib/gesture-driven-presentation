@@ -34,12 +34,12 @@ def testModelServer(array):
     subtracted keypoint x = keypoint x - average point x
     subtracted keypoint y = keypoint y - average point y
 
-    2. Normalize by dividing the shoulder distance to all keypoints.
-    
-    shoulder distance x = |left shoulder x - right shoulder x|
-    shoulder distance y = |left shoulder y - right shoulder y|
-    normalized keypoint x = subtracted keypoint x / shoulder distance x
-    normalized keypoint y = subtracted keypoint y / shoulder distance y
+    2. Normalize by dividing the euclidian shoulder distance to all keypoints.
+
+    shoulder distance = sqrt((right shoulder x - left shoulder x)**2 +
+                             (right shoulder y - left shoulder y)**2)
+    normalized keypoint x = subtracted keypoint x / shoulder distance
+    normalized keypoint y = subtracted keypoint y / shoulder distance
 
     Output:
     predictions: list in list output. The order is:
