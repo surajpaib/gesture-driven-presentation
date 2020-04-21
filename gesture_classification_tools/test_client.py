@@ -16,7 +16,12 @@ def testModelServer(array):
     added to the end of the array. 20 frames of coordinates and the rest as
     zeros should be ok for the prediction.
     12: x an y points of body pose. Important! The order must be consistent:
-
+    
+    Data preprocessing before feeding to model:
+    The normalization is done with respect to size and position.
+        -The position is normalized by subtracting the so called average point from each keypoint. The average point is the point in the centre of the two shoulder points.
+        -The size is normalized by calculating the distance between the shoulder keypoints, then get all coordinates divided by this distance.
+     
     [left shoulder x, left shoulder y, left elbow x, left elbow y,
      left wrist x, left wrist y, right shoulder x, right shoulder y,
      right elbow x, right elbow y, right wrist x, right wrist y]
