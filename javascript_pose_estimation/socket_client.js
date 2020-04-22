@@ -1,11 +1,9 @@
-const ws = WebSocket('ws://localhost:7777/pose');
+ws = new WebSocket('ws://localhost:7777/pose');
 
 
 ws.onopen = function() {
                   
     // Web Socket is connected, send data using send()
-    ws.send("Message to send");
-    alert("Message is sent...");
  };
   
  ws.onmessage = function (evt) { 

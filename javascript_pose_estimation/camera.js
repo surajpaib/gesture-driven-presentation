@@ -451,7 +451,8 @@ function detectPoseInRealTime(video, net, handposemodel) {
 
     // Begin monitoring code for frames per second
     stats.begin();
-
+    let full_estimated_pose = {};
+    
     let poses = [];
     let minPoseConfidence;
     let minPartConfidence;
@@ -480,9 +481,11 @@ function detectPoseInRealTime(video, net, handposemodel) {
         break;
     }
 
+
+
     const predictions = await handposemodel.estimateHands(video);
 
-
+    
     if (guiState.output.showVideo) {
 
     ctx.drawImage(video, 0, 0, videoWidth, videoHeight);
@@ -528,10 +531,15 @@ function detectPoseInRealTime(video, net, handposemodel) {
     }
 
 
+    full_estimated_pose.image_width = videoWidth;
+    full_estimated_pose.image_height = videoHeight;
+    full_estimated_pose.body_pose = poses;
+    full_estimated_pose.handpose = predictions;
+
     // End monitoring code for frames per second
     stats.end();
     frame_count += 1;
-    ws.send(poses);
+    ws.send(JSON.stringify(full_estimated_pose));
     requestAnimationFrame(poseDetectionFrame);
   }
 

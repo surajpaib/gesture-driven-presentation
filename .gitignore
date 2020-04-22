@@ -2,3 +2,5 @@ __pycache__
 
 javascript_pose_estimation/.cache
 javascript_pose_estimation/node_modules
+
+javascript_pose_estimation/=2.1.0
