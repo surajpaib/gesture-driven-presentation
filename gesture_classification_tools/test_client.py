@@ -64,7 +64,7 @@ print(model_prediction)
 
 
 
-def offsetOrigin(one_frame_array):
+def normalizeKeypoints(one_frame_array):
     """
     1. Subtract the coordinates of the average point from each keypoint. The
     average point is the middle of the shoulders.
