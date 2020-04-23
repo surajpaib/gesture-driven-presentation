@@ -76,7 +76,7 @@ class BodyClassificationHandler:
 
         print("-"*100)
 
-        
+
 
         if body_pose_dict["score"] > self.minPoseConfidence:
             for part in body_pose_dict["keypoints"]:
@@ -85,14 +85,13 @@ class BodyClassificationHandler:
                         self.classification_input_array[self.current_frame, INTEREST_PARTS[part["part"]]] = float(part["position"]["x"])
                         self.classification_input_array[self.current_frame, INTEREST_PARTS[part["part"]]+1] = float(part["position"]["y"])
 
-        
+
         if self.checkforSendFrame():
-                        
+
             if not np.any(self.classification_input_array[0:self.frames_per_call]==0):
                 print("Sending for server forr classification: ")
 
                 input_array = np.expand_dims(self.classification_input_array, axis=0)
                 self.sendFrametoServer(input_array)
-         
-            self.clearHistory()
 
+            self.clearHistory()
