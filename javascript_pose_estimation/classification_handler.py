@@ -1,6 +1,8 @@
 import numpy as np
 import requests
 import json
+from input_processer import processInput
+
 
 INTEREST_PARTS = {"leftShoulder": 0, "leftElbow": 2, "leftWrist": 4, "rightShoulder": 6, "rightElbow":8, "rightWrist": 10}
 
