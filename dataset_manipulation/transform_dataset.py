@@ -12,6 +12,8 @@ import time
 #            -> stnd_undr_clos_rigt
 #            -> sitt_over_null_left
 
+#TODO there is a bug that crashes
+
 original_path_name = "sitt_over_open_left"
 
 def create_dir(path):
@@ -77,20 +79,27 @@ def main():
 
     ugly_new_name = str(int(time.time())) + "_"
     for i, file_name in enumerate(original_videos_name):
+
         original_file = original_path / file_name
+        print("\nInit transformation file ", original_file)
+
         clip = VideoFileClip(str(original_file))
+        try:
+            reverse_file = reverse_path / str("reverse_" + ugly_new_name + str(i) + ".mp4")
+            reversed_clip = clip.fx(vfx.time_mirror)
+            reversed_clip.write_videofile(str(reverse_file), threads=4, audio = False, logger=None)
 
-        reverse_file = reverse_path / str("reverse_" + ugly_new_name + str(i) + ".mp4")
-        reversed_clip = clip.fx(vfx.time_mirror)
-        reversed_clip.write_videofile(str(reverse_file))
+            mirror_file = mirror_path / str("mirror_" + ugly_new_name + str(i) + ".mp4")
+            mirror_clip = clip.fx(vfx.mirror_x)
+            mirror_clip.write_videofile(str(mirror_file), threads=4, audio = False, logger=None)
 
-        mirror_file = mirror_path / str("mirror_" + ugly_new_name + str(i) + ".mp4")
-        mirror_clip = clip.fx(vfx.mirror_x)
-        mirror_clip.write_videofile(str(mirror_file))
-
-        mirror_reverse_file = mirror_reverse_path / str("reverse_mirror_" + ugly_new_name + str(i) + ".mp4")
-        mirror_reverse_clip = reversed_clip.fx(vfx.mirror_x)
-        mirror_reverse_clip.write_videofile(str(mirror_reverse_file))
+            mirror_reverse_file = mirror_reverse_path / str("reverse_mirror_" + ugly_new_name + str(i) + ".mp4")
+            mirror_reverse_clip = reversed_clip.fx(vfx.mirror_x)
+            mirror_reverse_clip.write_videofile(str(mirror_reverse_file), threads=4, audio = False, logger=None)
+        except OSError:
+            print("ERROR in file ", str(original_file))
+        else:
+            print("Successfully transformed file ", str(original_file))
 
 
 main()
