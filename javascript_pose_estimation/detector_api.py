@@ -21,6 +21,7 @@ class MainHandler(tornado.web.RequestHandler):
 
 class SimpleWebSocket(tornado.websocket.WebSocketHandler):
     def open(self):
+        # Initialize Body Classification handler class
         self.body_classification_handler = BodyClassificationHandler()
         print("WebSocket opened")
 
@@ -28,7 +29,14 @@ class SimpleWebSocket(tornado.websocket.WebSocketHandler):
         return True
 
     def on_message(self, message):
+        """
+        message: String received from javascript websocket
+        This function is called everytime a message is received from the socket connection. 
+        Message can be parsed using a json loads
+        """
         response_dict = json.loads(message)
+
+        # Body classifcation handler update is called to send the body pose details to the handler.
         self.body_classification_handler.update(response_dict["body_pose"][0], xmax=response_dict["image_width"], ymax=response_dict["image_height"])
 
     def on_close(self):
@@ -51,7 +59,7 @@ class WebSocketServer:
         self.app.listen(self.port)
 
     def start(self):
-        webbrowser.open_new("http://localhost:{}".format(self.port))
+        # webbrowser.open_new("http://localhost:{}".format(self.port))
         tornado.ioloop.IOLoop.current().start()
 
     def stop(self):

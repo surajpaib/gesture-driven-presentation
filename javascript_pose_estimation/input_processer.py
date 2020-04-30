@@ -35,13 +35,11 @@ def normalizeKeypoints(one_frame_array):
 def processInput(array):
     """
     The function is sending the array row by row to normalizeKeypoints().
-    array: Numpy array of shape (1,120,12)
-    normalized: Numpy array of shape (1,120,12)
+    array: Numpy array of shape (120,12)
+    normalized: Numpy array of shape (120,12)
     """
-    array=array.squeeze()
     normalized = np.empty([120,12])
     for i in range(array.shape[0]):
         one_row = normalizeKeypoints(array[i])
         normalized[i] = one_row
-    normalized = normalized.reshape([1,120,12])
     return normalized
