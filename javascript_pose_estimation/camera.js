@@ -109,7 +109,7 @@ async function setupCamera() {
 async function loadVideo() {
   const video = await setupCamera();
   video.play();
-
+  ws.send(JSON.stringify('Video set up!'));
   return video;
 }
 
@@ -338,6 +338,7 @@ function setupFPS() {
  * happens. This function loops with a requestAnimationFrame method.
  */
 function detectPoseInRealTime(video, net, handposemodel) {
+  ws.send(JSON.stringify('Detecting on frame...'));
   const canvas = document.getElementById('output');
   const trajectory_canvas = document.getElementById('trajectory');
 
@@ -539,6 +540,7 @@ function detectPoseInRealTime(video, net, handposemodel) {
     // End monitoring code for frames per second
     stats.end();
     frame_count += 1;
+
     ws.send(JSON.stringify(full_estimated_pose));
     requestAnimationFrame(poseDetectionFrame);
   }
@@ -552,6 +554,7 @@ function detectPoseInRealTime(video, net, handposemodel) {
  */
 export async function bindPage() {
   toggleLoadingUI(true);
+  ws.send(JSON.stringify('Binding...'));
   const net = await posenet.load({
     architecture: guiState.input.architecture,
     outputStride: guiState.input.outputStride,
@@ -560,7 +563,7 @@ export async function bindPage() {
     quantBytes: guiState.input.quantBytes
   });
   const handposemodel = await handpose.load();
-
+  ws.send(JSON.stringify('Models loaded!'));
   toggleLoadingUI(false);
 
   let video;
@@ -569,6 +572,7 @@ export async function bindPage() {
     video = await loadVideo();
   } catch (e) {
     let info = document.getElementById('info');
+    ws.send(JSON.stringify('Stream loading failed.'))
     info.textContent = 'this browser does not support video capture,' +
         'or this device does not have a camera';
     info.style.display = 'block';
@@ -577,6 +581,8 @@ export async function bindPage() {
 
   setupGui([], net);
   setupFPS();
+
+  ws.send(JSON.stringify('Starting detection...'));
   detectPoseInRealTime(video, net, handposemodel);
 }
 

@@ -11,7 +11,7 @@ import time
 import argparse
 import numpy as np
 import cv2
-from classification_handler import BodyClassificationHandler
+# from classification_handler import BodyClassificationHandler
 
 
 class MainHandler(tornado.web.RequestHandler):
@@ -21,7 +21,7 @@ class MainHandler(tornado.web.RequestHandler):
 
 class SimpleWebSocket(tornado.websocket.WebSocketHandler):
     def open(self):
-        self.body_classification_handler = BodyClassificationHandler()
+        # self.body_classification_handler = BodyClassificationHandler()
         print("WebSocket opened")
 
     def check_origin(self, origin):
@@ -29,7 +29,8 @@ class SimpleWebSocket(tornado.websocket.WebSocketHandler):
 
     def on_message(self, message):
         response_dict = json.loads(message)
-        self.body_classification_handler.update(response_dict["body_pose"][0], xmax=response_dict["image_width"], ymax=response_dict["image_height"])
+        print(response_dict)
+        # self.body_classification_handler.update(response_dict["body_pose"][0], xmax=response_dict["image_width"], ymax=response_dict["image_height"])
 
     def on_close(self):
         print("WebSocket closed")
