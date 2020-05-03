@@ -3,14 +3,36 @@ import tornado.web
 import tornado.websocket
 import webbrowser
 import subprocess
-import json, os
+import json, time
 import asyncio
+import pyppeteer
 from pyppeteer import launch
+
+pyppeteer.DEBUG = True
 
 def launch_browser():
 
     async def main():
-        browser = await launch()
+        browser = await launch(
+            headless=True,
+            ignoreHTTPSErrors = True,
+            args=[
+                '--use-fake-device-for-media-stream',
+                '--no-sandbox',
+                '--use-file-for-fake-video-capture=/Users/admin/Desktop/test.y4m',
+                '--disable-infobars',
+                '--disable-web-security',
+                '--use-fake-ui-for-media-stream',
+                '--disable-infobars',
+                '--no-sandbox',
+                '--disable-web-security',
+                '--ignore-certificate-errors',
+                '--allow-file-access',
+                '--unsafely-treat-insecure-origin-as-secure',
+                '--start-maximized'
+            ],
+            # executablePath= "/usr/local/bin/chr0me"
+        )
         page = await browser.newPage()
         await page.goto('http://localhost:7777')
         # await browser.close()
@@ -60,8 +82,9 @@ class WebSocketServer:
 
 if __name__ == "__main__":
     port = 7777
-    file = "test.webm"
     ws_interface = WebSocketServer(port=port)
+    time.sleep(1)
+    launch_browser()
 
     # subprocess.Popen(["/usr/local/bin/chrome",
     #                   "--headless", "--disable-gpu", "http://localhost:{}/".format(port),
