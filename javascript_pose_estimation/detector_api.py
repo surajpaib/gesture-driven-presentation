@@ -59,7 +59,7 @@ class WebSocketServer:
         self.app.listen(self.port)
 
     def start(self):
-        # webbrowser.open_new("http://localhost:{}".format(self.port))
+        webbrowser.open_new("http://localhost:{}".format(self.port))
         tornado.ioloop.IOLoop.current().start()
 
     def stop(self):
