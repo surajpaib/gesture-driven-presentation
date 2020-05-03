@@ -4,7 +4,18 @@ import tornado.websocket
 import webbrowser
 import subprocess
 import json, os
+import asyncio
+from pyppeteer import launch
 
+def launch_browser():
+
+    async def main():
+        browser = await launch()
+        page = await browser.newPage()
+        await page.goto('http://localhost:7777')
+        # await browser.close()
+
+    asyncio.get_event_loop().run_until_complete(main())
 
 class MainHandler(tornado.web.RequestHandler):
     def get(self):
