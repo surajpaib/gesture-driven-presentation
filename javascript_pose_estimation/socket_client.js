@@ -1,8 +1,7 @@
 ws = new WebSocket('ws://localhost:7777/pose');
 
 
-ws.onopen = function() {
-                  
+ws.onopen = function() {      
     // Web Socket is connected, send data using send()
  };
   
@@ -12,7 +11,6 @@ ws.onopen = function() {
  };
   
  ws.onclose = function() { 
-    
     // websocket is closed.
     alert("Connection is closed..."); 
  };
