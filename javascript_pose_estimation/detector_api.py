@@ -35,7 +35,6 @@ class SimpleWebSocket(tornado.websocket.WebSocketHandler):
         Message can be parsed using a json loads
         """
         response_dict = json.loads(message)
-        print(response_dict)
         # Body classifcation handler update is called to send the body pose details to the handler.
         self.body_classification_handler.update(response_dict["body_pose"][0], xmax=response_dict["image_width"], ymax=response_dict["image_height"])
 
