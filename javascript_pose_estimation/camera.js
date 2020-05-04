@@ -338,10 +338,8 @@ function setupFPS() {
  */
 function detectPoseInRealTime(video, net, handposemodel) {
   const canvas = document.getElementById('output');
-  const trajectory_canvas = document.getElementById('trajectory');
 
   const ctx = canvas.getContext('2d');
-  const trajectory_ctx = trajectory_canvas.getContext('2d');
 
   // since images are being fed from a webcam, we want to feed in the
   // original image and then just flip the keypoints' x coordinates. If instead
@@ -359,14 +357,6 @@ function detectPoseInRealTime(video, net, handposemodel) {
   ctx.scale(-1, 1);
 
 
-  trajectory_canvas.width = videoWidth;
-  trajectory_canvas.height = videoHeight;
-  trajectory_ctx.clearRect(0, 0, videoWidth, videoHeight);
-  trajectory_ctx.strokeStyle = "red";
-  trajectory_ctx.fillStyle = "red";
-
-  trajectory_ctx.translate(canvas.width, 0);
-  trajectory_ctx.scale(-1, 1);
 
   let frame_count = 0
   async function poseDetectionFrame() {
@@ -496,18 +486,11 @@ function detectPoseInRealTime(video, net, handposemodel) {
     // scores
     
 
-    if (frame_count == 10){
-      trajectory_ctx.clearRect(0, 0, videoWidth, videoHeight);
-      frame_count = 0;
-    }
-    trajectory_ctx.strokeStyle = colors_list[frame_count];
-    trajectory_ctx.fillStyle = colors_list[frame_count];
 
     poses.forEach(({score, keypoints}) => {
       if (score >= minPoseConfidence) {
         if (guiState.output.showPoints) {
           drawKeypoints(keypoints, minPartConfidence, ctx, 'aqua');
-          drawKeypoints(keypoints, minPartConfidence, trajectory_ctx, colors_list[frame_count]);
 
         }
         if (guiState.output.showSkeleton) {
@@ -525,7 +508,6 @@ function detectPoseInRealTime(video, net, handposemodel) {
       const result = predictions[0].landmarks;
       drawHandKeypoints(ctx, result, predictions[0].annotations);
       drawHandSkeleton(ctx, result, predictions[0].annotations);
-      drawHandKeypoints(trajectory_ctx, result, predictions[0].annotations);
 
     }
 

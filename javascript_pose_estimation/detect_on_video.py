@@ -8,34 +8,39 @@ import asyncio
 import pyppeteer
 from pyppeteer import launch
 
-pyppeteer.DEBUG = True
+pyppeteer.DEBUG = False
 
 def launch_browser():
 
     async def main():
         browser = await launch(
-            headless=True,
+            headless=False,
             ignoreHTTPSErrors = True,
             args=[
+
                 '--use-fake-device-for-media-stream',
-                '--no-sandbox',
-                '--use-file-for-fake-video-capture=/Users/admin/Desktop/test.y4m',
-                '--disable-infobars',
-                '--disable-web-security',
                 '--use-fake-ui-for-media-stream',
-                '--disable-infobars',
+                '--use-file-for-fake-video-capture=./test_gesture.y4m',
                 '--no-sandbox',
+                '--disable-infobars',
                 '--disable-web-security',
                 '--ignore-certificate-errors',
                 '--allow-file-access',
                 '--unsafely-treat-insecure-origin-as-secure',
-                '--start-maximized'
+                '--enable-webgl',
+                '--hide-scrollbars',
+                '--mute-audio',
+                '--no-first-run',
+                '--disable-infobars',
+                '--disable-breakpad',
             ],
-            # executablePath= "/usr/local/bin/chr0me"
+            executablePath= "/usr/bin/google-chrome"
         )
         page = await browser.newPage()
         await page.goto('http://localhost:7777')
-        # await browser.close()
+        await page.waitForSelector('#main', visible=True)
+        await page.waitFor(3000)
+        await browser.close()
 
     asyncio.get_event_loop().run_until_complete(main())
 
