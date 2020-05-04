@@ -10,6 +10,16 @@ from pyppeteer import launch
 
 pyppeteer.DEBUG = False
 
+def patch_pyppeteer():
+    import pyppeteer.connection
+    original_method = pyppeteer.connection.websockets.client.connect
+
+    def new_method(*args, **kwargs):
+        kwargs['ping_interval'] = None
+        kwargs['ping_timeout'] = None
+        return original_method(*args, **kwargs)
+
+    pyppeteer.connection.websockets.client.connect = new_method
 
 
 class MainHandler(tornado.web.RequestHandler):
@@ -50,10 +60,9 @@ class WebSocketServer:
     def launch_browser(self):
         async def main():
             browser = await launch(
-                headless=False,
+                headless=True,
                 ignoreHTTPSErrors = True,
                 args=[
-
                     '--use-fake-device-for-media-stream',
                     '--use-fake-ui-for-media-stream',
                     '--use-file-for-fake-video-capture=./test_gesture.y4m',
@@ -76,6 +85,8 @@ class WebSocketServer:
             await page.goto('http://localhost:7777')
             await page.waitForSelector('#main', visible=True)
             await page.waitFor(3000)
+            await page.screenshot(path='screenshot_1.png', fullPage=True)
+
             await browser.close()
             self.stop()
             
@@ -92,6 +103,8 @@ class WebSocketServer:
         tornado.ioloop.IOLoop.current().stop()
 
 if __name__ == "__main__":
+
+    patch_pyppeteer()
     port = 7777
     ws_interface = WebSocketServer(port=port)
     time.sleep(1)
