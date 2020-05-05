@@ -45,3 +45,9 @@ To test the server run the test_client.py.
 - 80% data for training and 20% data for testing
 - The result is 97% training accuracy and 95% testing accuracy.
 
+##### The LSTM_model_downsample_10fps.h file:
+-To match the output fps of PoseNet (10), the original data is downsample to 10 fps in xml_processing_tools. 
+-Then padding each data to 70 frames in preprocessing_tools. Because the longest video has 180 frame with 30fps, which equal to around 60 with 10 fps.
+-The model reaches 94% for training data and 92 for testing data after 100 epoches
+-To use this model, feed input of shape (None, 70, 12).
+
