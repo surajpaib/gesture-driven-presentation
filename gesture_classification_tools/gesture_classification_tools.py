@@ -45,7 +45,7 @@ def createKerasModel(timestep, feature, output):
 
 
 def evaluate_model(trainX, trainy, testX, testy, load_model=False,
-                   filename='LSTM_model.h5', save_model=False):
+                   filename='LSTM_model_downsample_10fps.h5', save_model=False):
     """
     Evaluate a keras model for given train and test parameters.
     The model is either loaded from file with loadKerasModel or created with
@@ -55,7 +55,7 @@ def evaluate_model(trainX, trainy, testX, testy, load_model=False,
     filename: File of the model.
     """
 
-    verbose, epochs, batch_size = 0, 50, 36
+    verbose, epochs, batch_size = 2, 100, 36
     n_timesteps, n_features, n_outputs = trainX.shape[1], trainX.shape[2], trainy.shape[1]  # 128, 9, 6
     if load_model==True:
         model = loadKerasModel(filename)
@@ -85,7 +85,7 @@ def evaluate_model(trainX, trainy, testX, testy, load_model=False,
     _, test_accuracy = model.evaluate(testX, testy, batch_size=batch_size,
                                                     verbose=0)
     if save_model==True:
-        model.save("LSTM_model.h5")
+        model.save("{}".format(filename))
     return train_accuracy, test_accuracy
 
 
@@ -106,8 +106,8 @@ def main():
     for r in range(repeats):
         train_test_scores = evaluate_model(X_train, y_train, X_test, y_test,
                                            load_model=False,
-                                           filename='LSTM_model.h5',
-                                           save_model=False)
+                                           filename='LSTM_model_downsample_10fps.h5',
+                                           save_model=True)
         train_score = train_test_scores[0]
         test_score = train_test_scores[1]
         train_score = train_score * 100.0

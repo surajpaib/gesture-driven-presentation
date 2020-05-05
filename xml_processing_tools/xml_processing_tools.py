@@ -41,11 +41,11 @@ def load_data_file(dic_filename):
         doc = xmltodict.parse(fd.read())
     #############DataX##############
     dataX = []
-    nr_timestep = 25  # Video is 30fps and at least 1 second.
+    nr_timestep = int(len(doc['data']['Frame'])/3)  # Downsample from 30fps to 10fps
     # length.append(len(doc['data']['Frame']))
-    for idx in range(len(doc['data']['Frame'])): #Load all frames
-        # for idx in np.linspace(3, len(doc['data']['Frame']) - 3, nr_timestep,
-        #                        dtype=int):  # Remove the noise in the beginning and ending
+    # for idx in range(len(doc['data']['Frame'])): #Load all frames
+    for idx in np.linspace(1, len(doc['data']['Frame'])-1, num=nr_timestep,
+                           dtype=int):  # Remove the noise in the beginning and ending
         data_X = []
         #  The order must be consistent:
         #  left shoulder, left elbow, left wrist, right shoulder, right elbow, right wrist

@@ -32,11 +32,13 @@ def deleteNaN(array):
     return nan_removed
 
 
-def kerasTruncate(array, max_len=120):
+def kerasTruncate(array, max_len=70):
     """
     Sequences that are shorter than maxlen are padded with 0 value at the end.
     Sequences longer than maxlen are truncated so that they fit the desired length.
     array: Numpy array to truncate.
+    max_len is 70 because the maximum length of training data is 170 frames,
+                    which equal to 60 after downsampling from 30fps to 10fps
     """
     array = pad_sequences(array, maxlen=max_len, dtype='float32', padding='post', truncating='post')
     return array
