@@ -41,8 +41,16 @@ def load_data_file(dic_filename):
         doc = xmltodict.parse(fd.read())
     #############DataX##############
     dataX = []
-    nr_timestep = int(len(doc['data']['Frame'])/3)  # Downsample from 30fps to 10fps
-    # length.append(len(doc['data']['Frame']))
+    FPS= doc['data']['FPS']
+    file_length = int(len(doc['data']['Frame']))
+    ####
+    # Note that the file 'rnext 239' and 'rnext 223' have only 4 data in total. Delete it from dataset.
+    # The rest file has at least 16 data.
+    ####
+    nr_timestep = int(len(doc['data']['Frame'])/6)  # Downsample from 30fps to 5fps
+    print('nr_timestep is:', nr_timestep)
+    print('fps is:', doc['data']['FPS'])
+    print('file_length is:', file_length)
     # for idx in range(len(doc['data']['Frame'])): #Load all frames
     for idx in np.linspace(1, len(doc['data']['Frame'])-1, num=nr_timestep,
                            dtype=int):  # Remove the noise in the beginning and ending
@@ -68,7 +76,7 @@ def load_data_file(dic_filename):
     else:
         dataY = [0, 0, 0, 0]
 
-    return dataX, dataY
+    return dataX, dataY, FPS, file_length
 
 
 def load_data_dic(file_dic, preprocessing = True):
@@ -78,15 +86,18 @@ def load_data_dic(file_dic, preprocessing = True):
     '''
     trainX = []
     trainY = []
+    FPSs = []
+    file_lengths = []
     # testX = []
     asd = os.listdir(file_dic)
     for filename in os.listdir(file_dic):
         file = Path(str(file_dic) + "/" + filename)
         if file.exists() and file.suffix == ".xml":
-            dataX, dataY = load_data_file(str(file))
+            dataX, dataY, FPS, file_length = load_data_file(str(file))
             trainX.append(dataX)
             trainY.append(dataY)
-
+            FPSs.append(FPS)
+            file_lengths.append(file_length)
     if preprocessing == True:
         trainX = preprocessNumpy(trainX)
 
