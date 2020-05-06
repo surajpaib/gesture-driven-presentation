@@ -5,11 +5,28 @@ import webbrowser
 import subprocess
 import json, time
 import asyncio
+
 import pickle
 
 
 buffer = []
 c = [0]
+
+import pyppeteer
+from pyppeteer import launch
+
+pyppeteer.DEBUG = False
+
+def patch_pyppeteer():
+    import pyppeteer.connection
+    original_method = pyppeteer.connection.websockets.client.connect
+
+    def new_method(*args, **kwargs):
+        kwargs['ping_interval'] = None
+        kwargs['ping_timeout'] = None
+        return original_method(*args, **kwargs)
+
+    pyppeteer.connection.websockets.client.connect = new_method
 
 
 class MainHandler(tornado.web.RequestHandler):
@@ -52,8 +69,47 @@ class WebSocketServer:
         self.app = get_tornado_app()
         self.app.listen(self.port)
 
+
+    def launch_browser(self):
+        async def main():
+            browser = await launch(
+                headless=True,
+                ignoreHTTPSErrors = True,
+                args=[
+                    '--use-fake-device-for-media-stream',
+                    '--use-fake-ui-for-media-stream',
+                    '--use-file-for-fake-video-capture=./test_gesture.y4m',
+                    '--no-sandbox',
+                    '--disable-infobars',
+                    '--disable-web-security',
+                    '--ignore-certificate-errors',
+                    '--allow-file-access',
+                    '--unsafely-treat-insecure-origin-as-secure',
+                    '--enable-webgl',
+                    '--hide-scrollbars',
+                    '--mute-audio',
+                    '--no-first-run',
+                    '--disable-infobars',
+                    '--disable-breakpad',
+                ],
+                executablePath= "/usr/bin/google-chrome"
+            )
+            page = await browser.newPage()
+            await page.goto('http://localhost:7777')
+            await page.waitForSelector('#main', visible=True)
+            await page.waitFor(3000)
+            await page.screenshot(path='screenshot_1.png', fullPage=True)
+
+            await browser.close()
+            self.stop()
+            
+
+        asyncio.get_event_loop().run_until_complete(main())
+
+
     def start(self):
         # webbrowser.open_new("http://localhost:{}".format(self.port))
+        # self.launch_browser()
         tornado.ioloop.IOLoop.current().start()
 
     def stop(self):
@@ -61,15 +117,11 @@ class WebSocketServer:
         tornado.ioloop.IOLoop.current().stop()
 
 if __name__ == "__main__":
+
+    patch_pyppeteer()
     port = 7777
     ws_interface = WebSocketServer(port=port)
     time.sleep(1)
-    # launch_browser()
-
-    # subprocess.Popen(["/usr/local/bin/chrome",
-    #                   "--headless", "--disable-gpu", "http://localhost:{}/".format(port),
-    #                   "--use-file-for-fake-video-capture={}".format(file)],
-    #                  cwd=os.path.dirname(os.path.realpath(__file__)))
 
     try:
         ws_interface.start()
