@@ -42,5 +42,7 @@ To test the server run the test_client.py.
 
 #####5fps_model:
 Accuracy: 98.16% training and 96.90% testing. Data is padded to 35 frames, so Input_shape is (None, 35, 12).
+
+
 #####10fps_model:
 Accuracy: 98.96% training and 97.12% testing. Data is padded to 70 frames, so Input_shape is (None, 70, 12).
