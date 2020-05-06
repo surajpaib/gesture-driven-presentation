@@ -47,10 +47,10 @@ def load_data_file(dic_filename):
     # Note that the file 'rnext 239' and 'rnext 223' have only 4 data in total. Delete it from dataset.
     # The rest file has at least 16 data.
     ####
-    nr_timestep = int(len(doc['data']['Frame'])/6)  # Downsample from 30fps to 5fps
-    print('nr_timestep is:', nr_timestep)
-    print('fps is:', doc['data']['FPS'])
-    print('file_length is:', file_length)
+    nr_timestep = int(len(doc['data']['Frame'])/3)  # Downsample from 30fps to 5fps
+    # print('nr_timestep is:', nr_timestep)
+    # print('fps is:', doc['data']['FPS'])
+    # print('file_length is:', file_length)
     # for idx in range(len(doc['data']['Frame'])): #Load all frames
     for idx in np.linspace(1, len(doc['data']['Frame'])-1, num=nr_timestep,
                            dtype=int):  # Remove the noise in the beginning and ending
@@ -58,8 +58,8 @@ def load_data_file(dic_filename):
         #  The order must be consistent:
         #  left shoulder, left elbow, left wrist, right shoulder, right elbow, right wrist
         for j in [2, 3, 4, 5, 6, 7]:
-            data_X.append(float(doc['data']['Frame'][idx]['Keypoint'][j - 1]['X']))
-            data_X.append(float(doc['data']['Frame'][idx]['Keypoint'][j - 1]['Y']))
+            data_X.append(float(doc['data']['Frame'][idx]['Keypoint'][j]['X']))
+            data_X.append(float(doc['data']['Frame'][idx]['Keypoint'][j]['Y']))
         dataX.append(data_X)
     dataX = np.vstack(dataX)
 

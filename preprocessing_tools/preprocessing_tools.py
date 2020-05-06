@@ -32,7 +32,7 @@ def deleteNaN(array):
     return nan_removed
 
 
-def kerasTruncate(array, max_len=35):
+def kerasTruncate(array, max_len=70):
     """
     Sequences that are shorter than maxlen are padded with 0 value at the end.
     Sequences longer than maxlen are truncated so that they fit the desired length.
