@@ -32,7 +32,9 @@ let fingerLookupIndices = {
   middleFinger: [0, 9, 10, 11, 12],
   ringFinger: [0, 13, 14, 15, 16],
   pinky: [0, 17, 18, 19, 20]
-}; 
+};
+
+let count = 0
 
 function drawHandPoint(ctx, y, x, r) {
   ctx.beginPath();
@@ -78,36 +80,10 @@ function drawHandSkeleton(ctx, keypoints){
  * Loads a the camera to be used in the demo
  *
  */
-async function setupCamera() {
-  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-    throw new Error(
-        'Browser API navigator.mediaDevices.getUserMedia not available');
-  }
 
-  const video = document.getElementById('video');
-  video.width = videoWidth;
-  video.height = videoHeight;
-
-  const mobile = isMobile();
-  const stream = await navigator.mediaDevices.getUserMedia({
-    'audio': false,
-    'video': {
-      facingMode: 'user',
-      width: mobile ? undefined : videoWidth,
-      height: mobile ? undefined : videoHeight,
-    },
-  });
-  video.srcObject = stream;
-
-  return new Promise((resolve) => {
-    video.onloadedmetadata = () => {
-      resolve(video);
-    };
-  });
-}
 
 async function loadVideo() {
-  const video = await setupCamera();
+  const video = document.getElementById('video'); //await setupCamera();
   video.play();
   return video;
 }
