@@ -4,7 +4,7 @@ from keras.models import load_model
 
 
 
-def exportKerastoProtobuf(path_to_h5='LSTM_model.h5',
+def exportKerastoProtobuf(path_to_h5='LSTM_model_downsample_10fps.h5',
                           export_path='serving_model'):
     """
     Export Keras h5 model to pb model (Protobuf: Protocol Buffer format).

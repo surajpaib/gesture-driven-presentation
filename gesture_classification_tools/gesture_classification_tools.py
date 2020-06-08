@@ -1,15 +1,16 @@
 import numpy as np
 import tensorflow as tf
+import keras
 from sklearn.model_selection import train_test_split
 from keras.models import Sequential
 from keras.layers import Dense
 from keras.layers import Flatten
-from keras.layers import Dropout
+from keras.layers import Dropout, BatchNormalization
 from keras.layers import LSTM
 from keras.utils import to_categorical
 import matplotlib.pyplot as plt
 from debugging_tools import *
-from xml_processing_tools import *
+from xml_processing_tools import xmlToNumpy
 from keras.callbacks import LambdaCallback
 from keras.models import load_model
 
@@ -34,11 +35,12 @@ def createKerasModel(timestep, feature, output):
     output: trainy.shape[1]
     """
     model = Sequential()
-    model.add(LSTM(100, input_shape=(timestep, feature)))
-    model.add(Dropout(0.5))
+    model.add(LSTM(200, input_shape=(timestep, feature)))
+    model.add(BatchNormalization())
+    model.add(Dropout(0.25))
     model.add(Dense(100, activation='relu'))
     model.add(Dense(output, activation='softmax'))
-    print("Keras model is icreated:")
+    print("Keras model is created:")
     model.summary()
     return model
 
@@ -55,7 +57,7 @@ def evaluate_model(trainX, trainy, testX, testy, load_model=False,
     filename: File of the model.
     """
 
-    verbose, epochs, batch_size = 2, 100, 36
+    verbose, epochs, batch_size = 1, 50, 36
     n_timesteps, n_features, n_outputs = trainX.shape[1], trainX.shape[2], trainy.shape[1]  # 128, 9, 6
     if load_model==True:
         model = loadKerasModel(filename)
@@ -64,18 +66,28 @@ def evaluate_model(trainX, trainy, testX, testy, load_model=False,
 
     # print_weights = LambdaCallback(on_epoch_end=lambda epoch, logs: print(model.layers[0].get_weights()))
     print_epoch_nr = LambdaCallback(on_epoch_end=lambda epoch, logs: print(epoch))
-    model.compile(loss='categorical_crossentropy',
-                  optimizer=tf.optimizers.Adam(learning_rate=0.0001,
-                                               beta_1=0.9,
-                                               beta_2=0.999,
-                                               epsilon=1e-07,
-                                               amsgrad=False,
-                                               name='Adam'),
-                                               metrics=['accuracy'])
+
+    opt = keras.optimizers.Adam(learning_rate=0.0001,
+                                 beta_1=0.9,
+                                 beta_2=0.999,
+                                 epsilon=1e-07,
+                                 amsgrad=False)
+
+    model.compile(loss='categorical_crossentropy', optimizer=opt, metrics=['accuracy'])
+
+    # model.compile(loss='categorical_crossentropy',
+    #               optimizer=tf.optimizers.Adam(learning_rate=0.0001,
+    #                                            beta_1=0.9,
+    #                                            beta_2=0.999,
+    #                                            epsilon=1e-07,
+    #                                            amsgrad=False,
+    #                                            name='Adam'),
+    #               metrics=['accuracy'])
 
     # fit network
     history = model.fit(trainX, trainy, epochs=epochs, batch_size=batch_size,
-                                        verbose=verbose)#, callbacks = [print_weights])
+                                        verbose=verbose,
+                                        validation_data=(testX, testy))#, callbacks = [print_weights])
     # model.fit(trainX, trainy, epochs=epochs, batch_size=batch_size, verbose=verbose, callbacks = epoch_ending(trainX, trainy))
     print("loss: ", history.history['loss'])
     print("accuracy: ",history.history['accuracy'])
@@ -92,6 +104,7 @@ def evaluate_model(trainX, trainy, testX, testy, load_model=False,
 
 
 def main():
+
     X, Y = xmlToNumpy()
 
     if len(X) == 0 or len(Y) == 0:

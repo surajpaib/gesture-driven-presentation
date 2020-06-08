@@ -10,7 +10,7 @@ class BodyClassificationHandler:
     """
     Class to handle body pose coordinates and output classification
     """
-    def __init__(self, frames_per_call=20, minPoseConfidence=0.1):
+    def __init__(self, frames_per_call=30, minPoseConfidence=0.1):
         """
         frames_per_call : Set to number of frames to be collected in the array before sending to server
         minPoseConfidence: Minimum confidence of the pose to be considered
@@ -20,7 +20,7 @@ class BodyClassificationHandler:
         self.current_frame = 0
 
         # Intialize dummy classication input array to be sent to model server
-        self.classification_input_array = np.zeros((120, 12))
+        self.classification_input_array = np.zeros((70, 12))
 
 
     def checkforSendFrame(self):
@@ -40,7 +40,7 @@ class BodyClassificationHandler:
         """
         Reset classification input array for new input to be sent
         """
-        self.classification_input_array = np.zeros((120, 12))
+        self.classification_input_array = np.zeros((70, 12))
 
 
     def sendFrametoServer(self, array):
@@ -80,12 +80,12 @@ class BodyClassificationHandler:
                         self.classification_input_array[self.current_frame, INTEREST_PARTS[part["part"]]] = float(part["position"]["x"])
                         self.classification_input_array[self.current_frame, INTEREST_PARTS[part["part"]]+1] = float(part["position"]["y"])
 
-             
+
 
         # If required number of frames collected
         if self.checkforSendFrame():
             # If any of the required interest points are not detected, then the value will be zero for those in the array.
-            # Consider only such arrays where all the required interests points are detected. 
+            # Consider only such arrays where all the required interests points are detected.
             if not np.any(self.classification_input_array[0:self.frames_per_call]==0):
                 print("Sending for server for classification: ")
 

@@ -1,5 +1,6 @@
 
 import numpy as np
+from debugging_tools import *
 
 def normalizeKeypoints(one_frame_array):
     """
@@ -27,6 +28,7 @@ def normalizeKeypoints(one_frame_array):
     # 2.
     shoulder_dist = np.sqrt((right_shoulder_x - left_shoulder_x)**2 +
                             (right_shoulder_y - left_shoulder_y)**2)
+
     normalized_keypoints = subtracted_keypoints / shoulder_dist
 
     return normalized_keypoints
@@ -38,8 +40,13 @@ def processInput(array):
     array: Numpy array of shape (120,12)
     normalized: Numpy array of shape (120,12)
     """
-    normalized = np.empty([120,12])
-    for i in range(array.shape[0]):
+    debug(array[:22,:])
+    print('###')
+    normalized = np.zeros([70,12])
+    # for i in range(array.shape[0]):
+    for i in range(31):
+
         one_row = normalizeKeypoints(array[i])
         normalized[i] = one_row
+    debug(normalized)
     return normalized
