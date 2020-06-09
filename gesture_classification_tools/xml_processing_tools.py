@@ -67,17 +67,17 @@ def load_data_file(dic_filename):
     dataY = []
     if 'lprev' in dic_filename:
         # dataY = [1, 0, 0, 0]
-        dataY = [1, 0, 0]
+        dataY = [1, 0]
 
     # elif 'reset' in dic_filename:
     #     dataY = [0, 1, 0, 0]
     elif 'rnext' in dic_filename:
         # dataY = [0, 0, 1, 0]
-        dataY = [0, 1, 0]
+        dataY = [0, 1]
 
-    elif 'startstop' in dic_filename:
-        # dataY = [0, 0, 0, 1]
-        dataY = [0, 0, 1]
+    # elif 'startstop' in dic_filename:
+    #     # dataY = [0, 0, 0, 1]
+    #     dataY = [0, 0, 1]
 
     # else:
         # dataY = [0, 0, 0, 0]
@@ -172,7 +172,8 @@ def xmlToNumpy(preprocessing = True):
     """
 
     # folders = ['LPrev', 'Reset', 'RNext', 'StartStop']
-    folders = ['LPrev', 'RNext', 'StartStop']
+    # folders = ['LPrev', 'RNext', 'StartStop']
+    folders = ['LPrev', 'RNext']
 
 
     loaded_pickle = pickleChecker()
@@ -186,7 +187,7 @@ def xmlToNumpy(preprocessing = True):
         for folder in folders:
             dic = getDataPath()
             file_dic = Path(dic + folder + '/')
-            
+
             if not file_dic.exists():
                 print(file_dic, " does not exist")
             else:

@@ -40,11 +40,9 @@ def processInput(array):
     array: Numpy array of shape (120,12)
     normalized: Numpy array of shape (120,12)
     """
-    debug(array[:22,:])
-    print('###')
     normalized = np.zeros([70,12])
     # for i in range(array.shape[0]):
-    for i in range(31):
+    for i in range(18):
 
         one_row = normalizeKeypoints(array[i])
         normalized[i] = one_row
