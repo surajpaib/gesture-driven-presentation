@@ -3,6 +3,7 @@ import os
 import numpy as np
 from debugging_tools import *
 from pathlib import Path
+import pandas as pd
 
 """
 This file reads pickles of extracted coordinates from each .pkl test file,
@@ -22,7 +23,7 @@ The mapping of the hand coordinates:
          1    \     /
           \    \   /
            ------0-
-           
+
 """
 
 def normalizeHandData(array):
