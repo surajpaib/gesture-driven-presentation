@@ -1,9 +1,9 @@
 
 import os
 import numpy as np
+import pandas as pd
 from debugging_tools import *
 from pathlib import Path
-import pandas as pd
 
 """
 This file reads pickles of extracted coordinates from each .pkl test file,
