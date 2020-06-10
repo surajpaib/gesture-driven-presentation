@@ -131,8 +131,6 @@ def main():
         scores.append(train_score)
         scores.append(test_score)
 
-    # debug(scores)
-    # summarize_results(scores)
 
 
 ################### Main function #########################
