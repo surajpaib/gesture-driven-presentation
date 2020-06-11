@@ -11,7 +11,7 @@ import time
 import argparse
 import numpy as np
 import cv2
-from classification_handler import BodyClassificationHandler
+from classification_handler import BodyClassificationHandler, HandClassificationHandler
 
 
 class MainHandler(tornado.web.RequestHandler):
@@ -22,7 +22,11 @@ class MainHandler(tornado.web.RequestHandler):
 class SimpleWebSocket(tornado.websocket.WebSocketHandler):
     def open(self):
         # Initialize Body Classification handler class
-        self.body_classification_handler = BodyClassificationHandler()
+
+
+        # Add flip and invert flags here!
+        self.body_classification_handler = BodyClassificationHandler(flip=True, invert=False)
+        self.hand_classification_handler = HandClassificationHandler(flip=True, invert=False)
         print("WebSocket opened")
 
     def check_origin(self, origin):
@@ -37,6 +41,9 @@ class SimpleWebSocket(tornado.websocket.WebSocketHandler):
         response_dict = json.loads(message)
         # Body classifcation handler update is called to send the body pose details to the handler.
         self.body_classification_handler.update(response_dict["body_pose"][0], xmax=response_dict["image_width"], ymax=response_dict["image_height"])
+        self.hand_classification_handler.update(response_dict["handpose"], xmax=response_dict["image_width"], ymax=response_dict["image_height"])
+
+
 
     def on_close(self):
         print("WebSocket closed")

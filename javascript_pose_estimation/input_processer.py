@@ -1,6 +1,5 @@
 
 import numpy as np
-from debugging_tools import *
 
 def normalizeKeypoints(one_frame_array):
     """
@@ -46,5 +45,19 @@ def processInput(array):
 
         one_row = normalizeKeypoints(array[i])
         normalized[i] = one_row
-    debug(normalized)
     return normalized
+
+
+def normalizeHandData(array):
+    """
+    Normalizes the coordinates of the hand dataset. The first two coordinates
+    in the hand dataset are the x, y of wrist coordinates. This point is
+    subtracted from other points. there are 21 x,y points in the hand pose.
+    array: Array of hand pose. shape [1, frames count, 42]
+    """
+    repeat=21
+    wrist_coord = array[:,:,:2]
+    wrist_coord = np.tile(wrist_coord,(repeat))
+    normalized_arr = array - wrist_coord
+
+    return normalized_arr
