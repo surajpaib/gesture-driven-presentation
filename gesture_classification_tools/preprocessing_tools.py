@@ -48,24 +48,16 @@ def kerasTruncate(array, max_len=70):
 def frameSampler(array, target_frame):
     """
     Random sample frames from the array to given target frame number:
-    array: frame array with shape[1, frame_size, cooedinates]
+    array: frame array with shape[1, frame_size, coordinates]
     coordinates are 12 for body pose and 42 for hand pose.
     target_frame: target frame number for the array.
+    sampled_array: Shape: [1, target_frame, coordinates]
     """
     frame_size = array.shape[1]
-    sample_lib = np.arange(frame_size)
-
-    if (frame_size < target_frame):
-        samples = np.random.choice(sample_lib, target_frame, replace=True)
-
-    elif (frame_size > target_frame):
-        samples = np.random.choice(sample_lib, target_frame, replace=False)
-
-    elif (frame_size == target_frame):
-        sampled_array = array
-        return sampled_array
-    # Sort the sampled list to have the same ordering:
-    samples = np.sort(samples)
+    samples = np.linspace(0,frame_size, num=target_frame, endpoint=False)
+    samples = samples//1
+    samples = samples.astype(int)
+    # Get the frames, which are in samples array:
     sampled_array = array[:,samples,:]
 
     return sampled_array
