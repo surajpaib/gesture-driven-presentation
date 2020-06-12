@@ -5,6 +5,7 @@ import pandas as pd
 from debugging_tools import *
 from pathlib import Path
 
+
 """
 This file reads pickles of extracted coordinates from each .pkl test file,
 converts and saves as numpy file.
@@ -41,19 +42,37 @@ def normalizeHandData(array):
     return normalized_arr
 
 
+def frameSampler(array, target_frame):
+    """
+    Random sample frames from the array to given target frame number:
+    array: frame array with shape[1, frame_size, coordinates]
+    coordinates are 12 for body pose and 42 for hand pose.
+    target_frame: target frame number for the array.
+    sampled_array: Shape: [1, target_frame, coordinates]
+    """
+    frame_size = array.shape[1]
+    samples = np.linspace(0,frame_size, num=target_frame, endpoint=False)
+    samples = samples//1
+    samples = samples.astype(int)
+    # Get the frames, which are in samples array:
+    sampled_array = array[:,samples,:]
+
+    return sampled_array
+
+
 def handPickleReader(path):
     """
     Reads the pickle files in the folder and pad with zeros:
     path: folder of the pickle files.
-    padded_data_all: numpy array of the hand pose coordinates.
-    Shape of output: [data count, 142,42]
-    The maximal frame count is used for the shape. Therefore 142.
+    sampled_data_all: numpy array of the hand pose coordinates.
+    Shape of output: [data count, frame_size, 42]
     The maximal count of frames is 142 in open hand dataset.
     The maximal count of frames is 112 in closed hand dataset.
     The hand dataset has 21 points each with an x and y coordinate.
-    Therefore 42.
+    Therefore 21 x 2 = 42.
     """
-    padded_data_all = np.empty([0,142,42])
+    frame_size = 40
+    sampled_data_all = np.empty([0,frame_size,42])
     file_list = sorted(os.listdir(path))
     for i in file_list:
 
@@ -62,13 +81,13 @@ def handPickleReader(path):
         palm_data = np.array(palm_data)
         palm_data = palm_data.reshape((1, palm_data.shape[0],-1))
         palm_data = normalizeHandData(palm_data)
+        palm_data = frameSampler(palm_data, frame_size)
         # pad the data with zeros:
-        pad_zero = np.zeros([1,142,42])
-        pad_zero[0,:palm_data.shape[1], :palm_data.shape[2]] = palm_data
+        # pad_zero = np.zeros([1,142,42])
+        # pad_zero[0,:palm_data.shape[1], :palm_data.shape[2]] = palm_data
+        sampled_data_all = np.append(sampled_data_all, palm_data, axis=0)
 
-        padded_data_all = np.append(padded_data_all, pad_zero, axis=0)
-
-    return padded_data_all
+    return sampled_data_all
 
 
 def pickleChecker():
