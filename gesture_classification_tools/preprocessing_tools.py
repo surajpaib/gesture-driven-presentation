@@ -1,5 +1,6 @@
 
 import numpy as np
+import random
 from keras.preprocessing.sequence import pad_sequences
 from debugging_tools import *
 
@@ -42,6 +43,33 @@ def kerasTruncate(array, max_len=70):
     """
     array = pad_sequences(array, maxlen=max_len, dtype='float32', padding='post', truncating='post')
     return array
+
+
+def frameSampler(array, target_frame):
+    """
+    Random sample frames from the array to given target frame number:
+    array: frame array with shape[1, frame_size, cooedinates]
+    coordinates are 12 for body pose and 42 for hand pose.
+    target_frame: target frame number for the array.
+    """
+    frame_size = array.shape[1]
+    sample_lib = np.arange(frame_size)
+
+    if (frame_size < target_frame):
+        samples = np.random.choice(sample_lib, target_frame, replace=True)
+
+    elif (frame_size > target_frame):
+        samples = np.random.choice(sample_lib, target_frame, replace=False)
+
+    elif (frame_size == target_frame):
+        sampled_array = array
+        return sampled_array
+    # Sort the sampled list to have the same ordering:
+    samples = np.sort(samples)
+    sampled_array = array[:,samples,:]
+
+    return sampled_array
+
 
 ################## Main code #################
 
