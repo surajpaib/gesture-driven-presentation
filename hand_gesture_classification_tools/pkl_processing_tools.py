@@ -32,12 +32,15 @@ def normalizeHandData(array):
     Normalizes the coordinates of the hand dataset. The first two coordinates
     in the hand dataset are the x, y of wrist coordinates. This point is
     subtracted from other points. there are 21 x,y points in the hand pose.
+    Each point is divided to x-distance between points 5 and 17.
     array: Array of hand pose. shape [1, frames count, 42]
     """
     repeat=21
     wrist_coord = array[:,:,:2]
     wrist_coord = np.tile(wrist_coord,(repeat))
     normalized_arr = array - wrist_coord
+    dist = normalized_arr[:,:,10]-normalized_arr[:,:,34]
+    normalized_arr = normalized_arr / dist.T
 
     return normalized_arr
 
