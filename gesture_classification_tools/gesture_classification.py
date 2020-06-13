@@ -106,6 +106,8 @@ def evaluate_model(trainX, trainy, testX, testy, load_model=False,
 def main():
 
     X, Y = xmlToNumpy()
+    debug(X)
+    pause()
 
     if len(X) == 0 or len(Y) == 0:
         return 0

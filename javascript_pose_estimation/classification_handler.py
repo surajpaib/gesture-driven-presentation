@@ -1,7 +1,7 @@
 import numpy as np
 import requests
 import json
-from input_processer import processInput, normalizeHandData
+from input_processer import processInput, normalizeHandData, frameSampler
 
 
 INTEREST_PARTS = {"leftShoulder": 0, "leftElbow": 2, "leftWrist": 4, "rightShoulder": 6, "rightElbow":8, "rightWrist": 10}
@@ -77,7 +77,7 @@ class BodyClassificationHandler:
             for part in body_pose_dict["keypoints"]:
                 if part["part"] in INTEREST_PARTS:
                     if part["position"]["x"] < xmax and  part["position"]["y"] < ymax:
-                        
+
                         if self.flip:
                             self.classification_input_array[self.current_frame, INTEREST_PARTS[part["part"]]] = xmax - float(part["position"]["x"])
                         else:
@@ -104,7 +104,7 @@ class BodyClassificationHandler:
 
 
 
-### HAND CLASSIFICATION HANDLER 
+### HAND CLASSIFICATION HANDLER
 
 """
 This file reads pickles of extracted coordinates from each .pkl test file,
@@ -128,9 +128,9 @@ The mapping of the hand coordinates:
 """
 
 
-HAND_INTEREST_PARTS = { 'palmBase': [0], 
+HAND_INTEREST_PARTS = { 'palmBase': [0],
                         'thumb': [1, 2, 3, 4],
-                        'indexFinger': [5, 6, 7, 8], 
+                        'indexFinger': [5, 6, 7, 8],
                         'middleFinger': [9, 10, 11, 12],
                         'ringFinger': [13, 14, 15, 16],
                         'pinky': [17, 18, 19, 20], }
@@ -140,7 +140,7 @@ class HandClassificationHandler:
     """
     Class to handle body pose coordinates and output classification
     """
-    def __init__(self, frames_per_call=30, minPoseConfidence=0.1, invert=False, flip=True):
+    def __init__(self, frames_per_call=20, minPoseConfidence=0.1, invert=False, flip=True):
         """
         frames_per_call : Set to number of frames to be collected in the array before sending to server
         minPoseConfidence: Minimum confidence of the pose to be considered
@@ -151,7 +151,7 @@ class HandClassificationHandler:
         self.invert = invert
         self.flip = flip
         # Intialize dummy classication input array to be sent to model server
-        self.classification_input_array = np.zeros((142, 42))
+        self.classification_input_array = np.zeros((20, 42))
 
 
     def checkforSendFrame(self):
@@ -172,7 +172,7 @@ class HandClassificationHandler:
         Reset classification input array for new input to be sent
         """
         print("Starting Hand Gesture Capture ...")
-        self.classification_input_array = np.zeros((142, 42))
+        self.classification_input_array = np.zeros((20, 42))
 
 
     def sendFrametoServer(self, array):
@@ -206,7 +206,7 @@ class HandClassificationHandler:
         if body_pose_dict:
             if body_pose_dict[0]['handInViewConfidence'] > self.minPoseConfidence:
                 hand_keypoints = body_pose_dict[0]['annotations']
-                
+
                 for finger in hand_keypoints:
                     perfinger_keypoints = np.array(hand_keypoints[finger])
 
@@ -217,8 +217,8 @@ class HandClassificationHandler:
                         self.classification_input_array[self.current_frame, x_index[:]] = xmax - perfinger_keypoints[:, 0]
                     else:
                         self.classification_input_array[self.current_frame, x_index[:]] = perfinger_keypoints[:, 0]
-                    
-                    if self.invert: 
+
+                    if self.invert:
                         self.classification_input_array[self.current_frame, y_index[:]] = ymax - perfinger_keypoints[:, 1]
                     else:
                         self.classification_input_array[self.current_frame, y_index[:]] = perfinger_keypoints[:, 1]
@@ -232,6 +232,8 @@ class HandClassificationHandler:
             input_array = np.expand_dims(self.classification_input_array, axis=0)
 
             input_array = normalizeHandData(input_array)
+            input_array = frameSampler(input_array, 40)
+
             self.sendFrametoServer(input_array)
 
             self.clearHistory()

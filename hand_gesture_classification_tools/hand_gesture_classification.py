@@ -100,6 +100,8 @@ def evaluate_model(trainX, trainy, testX, testy, load_model=False,
 def main():
 
     x,y = pklToNumpy()
+    debug(x)
+    pause()
     x_train, x_test, y_train, y_test = train_test_split(x, y,
                                                         test_size=0.20,
                                                         random_state=42)

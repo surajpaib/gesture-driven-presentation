@@ -61,3 +61,21 @@ def normalizeHandData(array):
     normalized_arr = array - wrist_coord
 
     return normalized_arr
+
+
+def frameSampler(array, target_frame):
+    """
+    Random sample frames from the array to given target frame number:
+    array: frame array with shape[1, frame_size, coordinates]
+    coordinates are 12 for body pose and 42 for hand pose.
+    target_frame: target frame number for the array.
+    sampled_array: Shape: [1, target_frame, coordinates]
+    """
+    frame_size = array.shape[1]
+    samples = np.linspace(0,frame_size, num=target_frame, endpoint=False)
+    samples = samples//1
+    samples = samples.astype(int)
+    # Get the frames, which are in samples array:
+    sampled_array = array[:,samples,:]
+
+    return sampled_array
