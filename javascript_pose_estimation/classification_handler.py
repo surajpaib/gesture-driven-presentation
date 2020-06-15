@@ -140,7 +140,7 @@ class HandClassificationHandler:
     """
     Class to handle body pose coordinates and output classification
     """
-    def __init__(self, frames_per_call=20, minPoseConfidence=0.1, invert=False, flip=True):
+    def __init__(self, frames_per_call=19, minPoseConfidence=0.1, invert=False, flip=True):
         """
         frames_per_call : Set to number of frames to be collected in the array before sending to server
         minPoseConfidence: Minimum confidence of the pose to be considered
