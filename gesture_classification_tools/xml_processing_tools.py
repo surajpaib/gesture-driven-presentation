@@ -31,6 +31,7 @@ array of lentgh: 18 (ID, X, Y, Confidence) (18: Count of keypoints
 '''
 Convert data into TrainX (nr_of_example, nr_timestep, 12).
 '''
+
 def load_data_file(dic_filename):
     '''
     dataX is ndarray (25,12)
@@ -47,7 +48,8 @@ def load_data_file(dic_filename):
     # Note that the file 'rnext 239' and 'rnext 223' have only 4 data in total. Delete it from dataset.
     # The rest file has at least 16 data.
     ####
-    nr_timestep = int(len(doc['data']['Frame'])/3)  # Downsample from 30fps to 5fps
+    down_sample_ratio = 1 / 3
+    nr_timestep = int(len(doc['data']['Frame'])*down_sample_ratio)  # Downsample from 30fps to 5fps
     # print('nr_timestep is:', nr_timestep)
     # print('fps is:', doc['data']['FPS'])
     # print('file_length is:', file_length)
@@ -55,11 +57,21 @@ def load_data_file(dic_filename):
     for idx in np.linspace(1, len(doc['data']['Frame'])-1, num=nr_timestep,
                            dtype=int):  # Remove the noise in the beginning and ending
         data_X = []
+        # x_cord = []
+        # y_cord = []
         #  The order must be consistent:
         #  left shoulder, left elbow, left wrist, right shoulder, right elbow, right wrist
         for j in [2, 3, 4, 5, 6, 7]:
             data_X.append(float(doc['data']['Frame'][idx]['Keypoint'][j]['X']))
             data_X.append(float(doc['data']['Frame'][idx]['Keypoint'][j]['Y']))
+
+        # for id in range(len(doc['data']['Frame'][3]['Keypoint'])):
+        #         #     print (id)
+        #         #     x_cord.append(round(float(doc['data']['Frame'][idx]['Keypoint'][id]['X']),3))
+        #         #     y_cord.append(round(float(doc['data']['Frame'][idx]['Keypoint'][id]['Y']),3))
+        #         # import matplotlib.pyplot as plt
+        #         # plt.scatter(x_cord, y_cord)
+        #         # plt.show()
         dataX.append(data_X)
     dataX = np.vstack(dataX)
 
@@ -89,7 +101,7 @@ def load_data_file(dic_filename):
     return dataX, dataY, FPS, file_length
 
 
-def load_data_dic(file_dic, preprocessing = True):
+def load_data_dic(file_dic, preprocessing, process_type):
     '''
     X is ndarray (nr_files, 25, 12)
     Y is ndarray (nr_files, 4)
@@ -109,7 +121,7 @@ def load_data_dic(file_dic, preprocessing = True):
             FPSs.append(FPS)
             file_lengths.append(file_length)
     if preprocessing == True:
-        trainX = preprocessNumpy(trainX)
+        trainX = preprocessNumpy(trainX, process_type=process_type)
 
     X = np.stack(trainX)
     Y = np.stack(trainY)
@@ -162,7 +174,7 @@ def pickleSaver(array, file_name):
 
 ################## Main code #################
 
-def xmlToNumpy(preprocessing = True):
+def xmlToNumpy(preprocessing = True, process_type = 'resample'):
     """
     Get X,Y values from xml files. If pickles exist first tries to read from
     pickles. If not read from .xml files.
@@ -171,6 +183,7 @@ def xmlToNumpy(preprocessing = True):
     Delete pickles folder in (../../pickles) if "folders" variable changes.
     preprocessing (default: True): If preprocessing=True preprocess X with
                                    preprocessing_tools package before saving.
+    process_type = 'resample' or 'truncate'
     """
 
     # folders = ['LPrev', 'Reset', 'RNext', 'StartStop']
@@ -193,16 +206,13 @@ def xmlToNumpy(preprocessing = True):
             if not file_dic.exists():
                 print(file_dic, " does not exist")
             else:
-                dataX, dataY = load_data_dic(file_dic)
+                dataX, dataY = load_data_dic(file_dic, preprocessing=preprocessing, process_type=process_type)
                 X.append(dataX)
                 Y.append(dataY)
 
         if len(X) != 0 and len(Y) != 0:
             X = np.vstack(X)
             Y = np.vstack(Y)
-
-            # if preprocessing == True:
-            #     X = preprocessNumpy(X)
 
             pickleSaver(X, 'X')
             pickleSaver(Y, 'Y')
