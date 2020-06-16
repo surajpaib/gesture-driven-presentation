@@ -12,7 +12,7 @@ import argparse
 import numpy as np
 import cv2
 from classification_handler import BodyClassificationHandler, HandClassificationHandler
-
+import heuristic
 
 class MainHandler(tornado.web.RequestHandler):
     def get(self):
@@ -39,11 +39,18 @@ class SimpleWebSocket(tornado.websocket.WebSocketHandler):
         Message can be parsed using a json loads
         """
         response_dict = json.loads(message)
-        # Body classifcation handler update is called to send the body pose details to the handler.
-        self.body_classification_handler.update(response_dict["body_pose"][0], xmax=response_dict["image_width"], ymax=response_dict["image_height"])
-        self.hand_classification_handler.update(response_dict["handpose"], xmax=response_dict["image_width"], ymax=response_dict["image_height"])
 
-
+        if response_dict["body_pose"] and response_dict["handpose"]:
+            # Body classifcation handler update is called to send the body pose details to the handler.
+            check_body_validation, check_hand_validation = heuristic.heuristic_checks(response_dict, self.body_classification_handler.minPoseConfidence, self.hand_classification_handler.minPoseConfidence)
+            if check_body_validation:
+                self.body_classification_handler.update(response_dict["body_pose"][0], xmax=response_dict["image_width"], ymax=response_dict["image_height"])
+            else:
+                print("skipped position classification")
+            if check_hand_validation:
+                self.hand_classification_handler.update(response_dict["handpose"], xmax=response_dict["image_width"], ymax=response_dict["image_height"])
+            else:
+                print("skipped hand classification")
 
     def on_close(self):
         print("WebSocket closed")
