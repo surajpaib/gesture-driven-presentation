@@ -12,8 +12,8 @@ import matplotlib.pyplot as plt
 from debugging_tools import *
 from xml_processing_tools import xmlToNumpy
 from keras.callbacks import LambdaCallback
-from keras.models import load_model
-
+from keras.models import load_model, Model
+from keras.layers import Input, Permute, Conv1D, Activation, GlobalAveragePooling1D, concatenate
 
 def loadKerasModel(filename='LSTM_model.h5'):
     """
@@ -45,6 +45,35 @@ def createKerasModel(timestep, feature, output):
     return model
 
 
+def createLSTM_FCN(timesteps, features, output):
+    ip = Input(shape=(timesteps, features))
+    x = LSTM(features)(ip)
+    x = Dropout(0.8)(x)
+
+    y = Permute((2, 1))(ip)
+    y = Conv1D(128, 8, padding='same', kernel_initializer='he_uniform')(y)
+    y = BatchNormalization()(y)
+    y = Activation('relu')(y)
+
+    y = Conv1D(256, 5, padding='same', kernel_initializer='he_uniform')(y)
+    y = BatchNormalization()(y)
+    y = Activation('relu')(y)
+
+    y = Conv1D(128, 3, padding='same', kernel_initializer='he_uniform')(y)
+    y = BatchNormalization()(y)
+    y = Activation('relu')(y)
+
+    y = GlobalAveragePooling1D()(y)
+
+    x = concatenate([x, y])
+
+    out = Dense(output, activation='softmax')(x)
+
+    model = Model(ip, out)
+
+    model.summary()
+    return model
+
 
 def evaluate_model(trainX, trainy, testX, testy, load_model=False,
                    filename='LSTM_model.h5', save_model=False):
@@ -62,7 +91,8 @@ def evaluate_model(trainX, trainy, testX, testy, load_model=False,
     if load_model==True:
         model = loadKerasModel(filename)
     else:
-        model = createKerasModel(n_timesteps, n_features, n_outputs)
+        # model = createKerasModel(n_timesteps, n_features, n_outputs)
+        model = createLSTM_FCN(n_timesteps, n_features, n_outputs)
 
     # print_weights = LambdaCallback(on_epoch_end=lambda epoch, logs: print(model.layers[0].get_weights()))
     print_epoch_nr = LambdaCallback(on_epoch_end=lambda epoch, logs: print(epoch))
