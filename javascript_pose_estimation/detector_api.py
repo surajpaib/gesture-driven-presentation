@@ -44,11 +44,10 @@ class SimpleWebSocket(tornado.websocket.WebSocketHandler):
         response_dict = json.loads(message)
 
         if self.enable_heuristic:
-
-
             if response_dict["body_pose"] and response_dict["handpose"]:
                 # Body classifcation handler update is called to send the body pose details to the handler.
-                check_body_validation, check_hand_validation = heuristic.heuristic_checks(response_dict, self.body_classification_handler.minPoseConfidence, self.hand_classification_handler.minPoseConfidence)
+                heux = heuristic.Heuristic(response_dict, self.body_classification_handler.minPoseConfidence, self.hand_classification_handler.minPoseConfidence)
+                check_body_validation, check_hand_validation = heux.heuristic_checks()
                 if check_body_validation:
                     self.body_classification_handler.update(response_dict["body_pose"][0], xmax=response_dict["image_width"], ymax=response_dict["image_height"])
                 else:

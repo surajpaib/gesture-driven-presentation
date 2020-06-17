@@ -1,6 +1,12 @@
 __pycache__
+.idea
 
 javascript_pose_estimation/.cache
 javascript_pose_estimation/node_modules
-
 javascript_pose_estimation/=2.1.0
+
+dataset_manipulation/output
+dataset_manipulation/*.zip
+dataset_manipulation/*.rar
+dataset_manipulation/*.mov
+dataset_manipulation/*.mp4
