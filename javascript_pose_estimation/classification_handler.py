@@ -70,14 +70,10 @@ class BodyClassificationHandler:
 
         P.S. The array is discarded if any body pose keypoint that is mentioned in the INTEREST_POINTS is not detected.
         """
-
-
-
         if body_pose_dict["score"] > self.minPoseConfidence:
             for part in body_pose_dict["keypoints"]:
                 if part["part"] in INTEREST_PARTS:
-                    if part["position"]["x"] < xmax and  part["position"]["y"] < ymax:
-
+                    if part["position"]["x"] < xmax and part["position"]["y"] < ymax:
                         if self.flip:
                             self.classification_input_array[self.current_frame, INTEREST_PARTS[part["part"]]] = xmax - float(part["position"]["x"])
                         else:
@@ -87,7 +83,6 @@ class BodyClassificationHandler:
                             self.classification_input_array[self.current_frame, INTEREST_PARTS[part["part"]]+1] = ymax - float(part["position"]["y"])
                         else:
                             self.classification_input_array[self.current_frame, INTEREST_PARTS[part["part"]]+1] = float(part["position"]["y"])
-
 
         # If required number of frames collected
         if self.checkforSendFrame():
@@ -101,8 +96,6 @@ class BodyClassificationHandler:
                 self.sendFrametoServer(input_array)
 
             self.clearHistory()
-
-
 
 ### HAND CLASSIFICATION HANDLER
 
@@ -200,9 +193,6 @@ class HandClassificationHandler:
 
         P.S. The array is discarded if any body pose keypoint that is mentioned in the INTEREST_POINTS is not detected.
         """
-
-
-
         if body_pose_dict:
             if body_pose_dict[0]['handInViewConfidence'] > self.minPoseConfidence:
                 hand_keypoints = body_pose_dict[0]['annotations']
