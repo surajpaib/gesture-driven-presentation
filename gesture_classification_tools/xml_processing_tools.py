@@ -57,21 +57,11 @@ def load_data_file(dic_filename):
     for idx in np.linspace(1, len(doc['data']['Frame'])-1, num=nr_timestep,
                            dtype=int):  # Remove the noise in the beginning and ending
         data_X = []
-        # x_cord = []
-        # y_cord = []
         #  The order must be consistent:
         #  left shoulder, left elbow, left wrist, right shoulder, right elbow, right wrist
         for j in [2, 3, 4, 5, 6, 7]:
             data_X.append(float(doc['data']['Frame'][idx]['Keypoint'][j]['X']))
             data_X.append(float(doc['data']['Frame'][idx]['Keypoint'][j]['Y']))
-
-        # for id in range(len(doc['data']['Frame'][3]['Keypoint'])):
-        #         #     print (id)
-        #         #     x_cord.append(round(float(doc['data']['Frame'][idx]['Keypoint'][id]['X']),3))
-        #         #     y_cord.append(round(float(doc['data']['Frame'][idx]['Keypoint'][id]['Y']),3))
-        #         # import matplotlib.pyplot as plt
-        #         # plt.scatter(x_cord, y_cord)
-        #         # plt.show()
         dataX.append(data_X)
     dataX = np.vstack(dataX)
 
@@ -79,19 +69,19 @@ def load_data_file(dic_filename):
     dataY = []
     if 'lprev' in dic_filename:
         # dataY = [1, 0, 0, 0]
-        dataY = [1, 0, 0]
-
+        # dataY = [1, 0, 0]
+        dataY = [1,0]
     # elif 'reset' in dic_filename:
     #     dataY = [0, 1, 0, 0]
     elif 'rnext' in dic_filename:
         # dataY = [0, 0, 1, 0]
-        dataY = [0, 1, 0]
-
+        # dataY = [0, 1, 0]
+        dataY = [0, 1]
     # elif 'startstop' in dic_filename:
-    elif 'reset' in dic_filename:
+    # elif 'reset' in dic_filename:
 
         # dataY = [0, 0, 0, 1]
-        dataY = [0, 0, 1]
+        # dataY = [0, 0, 1]
 
     # else:
         # dataY = [0, 0, 0, 0]
@@ -187,8 +177,8 @@ def xmlToNumpy(preprocessing = True, process_type = 'resample'):
     """
 
     # folders = ['LPrev', 'Reset', 'RNext', 'StartStop']
-    folders = ['LPrev', 'RNext', 'Reset']
-    # folders = ['LPrev', 'RNext']
+    # folders = ['LPrev', 'RNext', 'Reset']
+    folders = ['LPrev', 'RNext']
 
 
     loaded_pickle = pickleChecker()

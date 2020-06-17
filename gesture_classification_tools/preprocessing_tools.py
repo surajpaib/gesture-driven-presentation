@@ -60,6 +60,7 @@ def frameSampler(array, target_frame):
 
     return sampled_array
 
+
 def frameSample(array, target_frame):
     '''
     Resample rames from the array to given target frames number
@@ -84,10 +85,10 @@ def preprocessNumpy(array, process_type):
     """
 
     if process_type == 'resample':
-        target_frame=20
+        target_frame = 30
         array = frameSample(array, target_frame=target_frame)
     if process_type == 'truncate':
-        array = kerasTruncate(array)
+        array = kerasTruncate(array, max_len=70)
 
     array = deleteNaN(array)
     return array

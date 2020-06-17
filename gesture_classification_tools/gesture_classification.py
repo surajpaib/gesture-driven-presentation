@@ -47,7 +47,7 @@ def createKerasModel(timestep, feature, output):
 
 
 def evaluate_model(trainX, trainy, testX, testy, load_model=False,
-                   filename='LSTM_model_downsample_10fps.h5', save_model=False):
+                   filename='LSTM_model.h5', save_model=False):
     """
     Evaluate a keras model for given train and test parameters.
     The model is either loaded from file with loadKerasModel or created with
@@ -105,7 +105,7 @@ def evaluate_model(trainX, trainy, testX, testy, load_model=False,
 
 def main():
 
-    X, Y = xmlToNumpy()
+    X, Y = xmlToNumpy(preprocessing = True, process_type = 'truncate') # process_type = 'resample' or 'truncate'
     debug(X)
     pause()
 
@@ -121,7 +121,7 @@ def main():
     for r in range(repeats):
         train_test_scores = evaluate_model(X_train, y_train, X_test, y_test,
                                            load_model=False,
-                                           filename='LSTM_model_downsample_10fps.h5',
+                                           filename='LSTM_truncate70_200units_next_prev.h5',
                                            save_model=True)
         train_score = train_test_scores[0]
         test_score = train_test_scores[1]
