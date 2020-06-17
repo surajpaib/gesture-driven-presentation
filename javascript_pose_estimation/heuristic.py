@@ -1,5 +1,3 @@
-
-
 def heuristic_checks(response_dict, min_body_confidence, min_hand_confidence):
     X, Y = 0, 1
     body_ok, hand_ok = True, True

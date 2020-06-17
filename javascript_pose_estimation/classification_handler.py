@@ -29,7 +29,7 @@ class BodyClassificationHandler:
         Checks if the number of frames to be collected has been reached.
         Returns True if reached. If not, then False.
         """
-        if self.current_frame == self.frames_per_call:
+        if self.current_frame == self.frames_per_call - 1:
             self.current_frame = 0
             return True
         else:
@@ -133,7 +133,7 @@ class HandClassificationHandler:
     """
     Class to handle body pose coordinates and output classification
     """
-    def __init__(self, frames_per_call=19, minPoseConfidence=0.1, invert=False, flip=True):
+    def __init__(self, frames_per_call=10, minPoseConfidence=0.1, invert=False, flip=True):
         """
         frames_per_call : Set to number of frames to be collected in the array before sending to server
         minPoseConfidence: Minimum confidence of the pose to be considered
@@ -144,7 +144,7 @@ class HandClassificationHandler:
         self.invert = invert
         self.flip = flip
         # Intialize dummy classication input array to be sent to model server
-        self.classification_input_array = np.zeros((20, 42))
+        self.classification_input_array = np.zeros((self.frames_per_call, 42))
 
 
     def checkforSendFrame(self):
@@ -152,7 +152,7 @@ class HandClassificationHandler:
         Checks if the number of frames to be collected has been reached.
         Returns True if reached. If not, then False.
         """
-        if self.current_frame == self.frames_per_call:
+        if self.current_frame == self.frames_per_call - 1:
             self.current_frame = 0
             return True
         else:
@@ -165,7 +165,7 @@ class HandClassificationHandler:
         Reset classification input array for new input to be sent
         """
         print("Starting Hand Gesture Capture ...")
-        self.classification_input_array = np.zeros((20, 42))
+        self.classification_input_array = np.zeros((self.frames_per_call, 42))
 
 
     def sendFrametoServer(self, array):
@@ -220,7 +220,7 @@ class HandClassificationHandler:
             # Consider only such arrays where all the required interests points are detected.
             print("Sending for server for classification: ")
             input_array = np.expand_dims(self.classification_input_array, axis=0)
-
+            print(input_array)
             input_array = normalizeHandData(input_array)
             input_array = frameSampler(input_array, 40)
 

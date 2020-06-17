@@ -14,6 +14,8 @@ import cv2
 from classification_handler import BodyClassificationHandler, HandClassificationHandler
 import heuristic
 
+
+
 class MainHandler(tornado.web.RequestHandler):
     def get(self):
         self.render("dist/index.html")
@@ -25,6 +27,7 @@ class SimpleWebSocket(tornado.websocket.WebSocketHandler):
 
 
         # Add flip and invert flags here!
+        self.enable_heuristic = True
         self.body_classification_handler = BodyClassificationHandler(flip=True, invert=False)
         self.hand_classification_handler = HandClassificationHandler(flip=True, invert=False)
         print("WebSocket opened")
@@ -40,17 +43,25 @@ class SimpleWebSocket(tornado.websocket.WebSocketHandler):
         """
         response_dict = json.loads(message)
 
-        if response_dict["body_pose"] and response_dict["handpose"]:
-            # Body classifcation handler update is called to send the body pose details to the handler.
-            check_body_validation, check_hand_validation = heuristic.heuristic_checks(response_dict, self.body_classification_handler.minPoseConfidence, self.hand_classification_handler.minPoseConfidence)
-            if check_body_validation:
+        if self.enable_heuristic:
+
+
+            if response_dict["body_pose"] and response_dict["handpose"]:
+                # Body classifcation handler update is called to send the body pose details to the handler.
+                check_body_validation, check_hand_validation = heuristic.heuristic_checks(response_dict, self.body_classification_handler.minPoseConfidence, self.hand_classification_handler.minPoseConfidence)
+                if check_body_validation:
+                    self.body_classification_handler.update(response_dict["body_pose"][0], xmax=response_dict["image_width"], ymax=response_dict["image_height"])
+                else:
+                    print("skipped position classification")
+                if check_hand_validation:
+                    self.hand_classification_handler.update(response_dict["handpose"], xmax=response_dict["image_width"], ymax=response_dict["image_height"])
+                else:
+                    print("skipped hand classification")
+        else:
+            if response_dict["body_pose"] and response_dict["handpose"]:
                 self.body_classification_handler.update(response_dict["body_pose"][0], xmax=response_dict["image_width"], ymax=response_dict["image_height"])
-            else:
-                print("skipped position classification")
-            if check_hand_validation:
                 self.hand_classification_handler.update(response_dict["handpose"], xmax=response_dict["image_width"], ymax=response_dict["image_height"])
-            else:
-                print("skipped hand classification")
+
 
     def on_close(self):
         print("WebSocket closed")
