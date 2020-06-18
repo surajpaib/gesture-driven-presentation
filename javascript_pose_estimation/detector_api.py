@@ -50,12 +50,12 @@ class SimpleWebSocket(tornado.websocket.WebSocketHandler):
                 check_body_validation, check_hand_validation = heux.heuristic_checks()
                 if check_body_validation:
                     self.body_classification_handler.update(response_dict["body_pose"][0], xmax=response_dict["image_width"], ymax=response_dict["image_height"])
-                else:
-                    print("skipped position classification")
+                #else:
+                #    print("skipped position classification")
                 if check_hand_validation:
                     self.hand_classification_handler.update(response_dict["handpose"], xmax=response_dict["image_width"], ymax=response_dict["image_height"])
-                else:
-                    print("skipped hand classification")
+                #else:
+                #    print("skipped hand classification")
         else:
             if response_dict["body_pose"] and response_dict["handpose"]:
                 self.body_classification_handler.update(response_dict["body_pose"][0], xmax=response_dict["image_width"], ymax=response_dict["image_height"])
