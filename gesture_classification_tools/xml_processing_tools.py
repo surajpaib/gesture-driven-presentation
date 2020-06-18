@@ -68,19 +68,20 @@ def load_data_file(dic_filename):
     #############DataY##############
     dataY = []
     if 'lprev' in dic_filename:
-        # dataY = [1, 0, 0, 0]
+        dataY = [1, 0, 0, 0]
         # dataY = [1, 0, 0]
-        dataY = [1,0]
+        # dataY = [1,0]
     # elif 'reset' in dic_filename:
     #     dataY = [0, 1, 0, 0]
     elif 'rnext' in dic_filename:
-        # dataY = [0, 0, 1, 0]
+        dataY = [0, 0, 1, 0]
         # dataY = [0, 1, 0]
-        dataY = [0, 1]
-    # elif 'startstop' in dic_filename:
-    # elif 'reset' in dic_filename:
+        # dataY = [0, 1]
+    elif 'startstop' in dic_filename:
+        dataY = [0, 0, 1, 0]
+    elif 'reset' in dic_filename:
 
-        # dataY = [0, 0, 0, 1]
+        dataY = [0, 0, 0, 1]
         # dataY = [0, 0, 1]
 
     # else:
@@ -176,9 +177,9 @@ def xmlToNumpy(preprocessing = True, process_type = 'resample'):
     process_type = 'resample' or 'truncate'
     """
 
-    # folders = ['LPrev', 'Reset', 'RNext', 'StartStop']
+    folders = ['LPrev', 'Reset', 'RNext', 'StartStop']
     # folders = ['LPrev', 'RNext', 'Reset']
-    folders = ['LPrev', 'RNext']
+    # folders = ['LPrev', 'RNext']
 
 
     loaded_pickle = pickleChecker()
