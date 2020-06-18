@@ -56,8 +56,17 @@ class BodyClassificationHandler:
         'http://localhost:9000/v1/models/saved_model/versions/1:predict',
         data=data, headers=headers)
         predictions = json.loads(json_response.text)['predictions']
+        predictions = predictions[0]
+        max_prediction_value = max(predictions)
+        max_prediction_index = predictions.index(max_prediction_value)
 
-        print("Body Gesture Predictions: ", predictions)
+        BODY_GESTURES = ["NEXT SLIDE", "PREVIOUS SLIDE", "START/STOP"]
+
+        print("Body Gesture Prediction: " +
+              BODY_GESTURES[max_prediction_index] +
+              " [ " + str(max_prediction_value) + " ]")
+        #print("Body Gesture Predictions: ", predictions)
+
 
     def update(self, body_pose_dict, xmax=640, ymax=500):
         """
@@ -89,7 +98,7 @@ class BodyClassificationHandler:
             # If any of the required interest points are not detected, then the value will be zero for those in the array.
             # Consider only such arrays where all the required interests points are detected.
             if not np.any(self.classification_input_array[0:self.frames_per_call]==0):
-                print("Sending for server for classification: ")
+                #print("Sending for server for classification: ")
 
                 normalized_input_array = processInput(self.classification_input_array)
                 input_array = np.expand_dims(normalized_input_array, axis=0)
@@ -179,8 +188,18 @@ class HandClassificationHandler:
         'http://localhost:9001/v1/models/saved_model/versions/1:predict',
         data=data, headers=headers)
         predictions = json.loads(json_response.text)['predictions']
+        predictions = predictions[0]
 
-        print("Hand Gesture Predictions:", predictions)
+        max_prediction_value = max(predictions)
+        max_prediction_index = predictions.index(max_prediction_value)
+        HAND_GESTURES = ["ZOOM IN", "ZOOM OUT"]
+
+        print("Hand Gesture Prediction: " +
+              HAND_GESTURES[max_prediction_index] +
+              " [ " + str(max_prediction_value) + " ]")
+        #print("Hand Gesture Predictions:", predictions)
+
+
 
     def update(self, body_pose_dict, xmax=640, ymax=500):
         """
@@ -218,9 +237,9 @@ class HandClassificationHandler:
         if self.checkforSendFrame():
             # If any of the required interest points are not detected, then the value will be zero for those in the array.
             # Consider only such arrays where all the required interests points are detected.
-            print("Sending for server for classification: ")
+            #print("Sending for server for classification: ")
             input_array = np.expand_dims(self.classification_input_array, axis=0)
-            print(input_array)
+            #print(input_array)
             input_array = normalizeHandData(input_array)
             input_array = frameSampler(input_array, 40)
 
