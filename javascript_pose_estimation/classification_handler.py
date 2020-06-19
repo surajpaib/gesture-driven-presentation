@@ -3,8 +3,8 @@ import requests
 import json
 from input_processer import processInput, normalizeHandData, frameSampler
 
-BODY_CONFIDENCE_THRESHOLD = 0.9
-HAND_CONFIDENCE_THRESHOLD = 0.9
+BODY_CONFIDENCE_THRESHOLD = 0.95
+HAND_CONFIDENCE_THRESHOLD = 0.95
 
 INTEREST_PARTS = {"leftShoulder": 0, "leftElbow": 2, "leftWrist": 4, "rightShoulder": 6, "rightElbow":8, "rightWrist": 10}
 

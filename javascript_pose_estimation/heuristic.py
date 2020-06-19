@@ -6,6 +6,7 @@ HAND_ORIENTATION_MARGIN = 45
 MIN_CONSTANT_HAND = 1
 MAX_CONSTANT_HAND = 2.5
 
+HAND_THRESHOLD = 1.5
 ARM_ORIENTATION_MARGIN = 45
 
 class Heuristic:
@@ -97,23 +98,26 @@ class Heuristic:
                 #print("SN UP")
                 left_hand_point = palm_base_point
 
+            palm_length = self.calculate_distance(index_finger_point, pinky_finger_point)
+            hand_recognition_threshold = HAND_THRESHOLD * palm_length
 
             left_hand_UP, right_hand_UP = False, False
             if left_shoulder_point != None and left_hand_point != None:
                 left_hand_up_measure = -(left_hand_point[Y] - left_shoulder_point[Y])  # inverted because is inverted y
-                if left_hand_up_measure > 0:
+                if left_hand_up_measure > hand_recognition_threshold:
                     #print("LEFT UP")
                     left_hand_UP = True
 
             if right_shoulder_point != None and right_hand_point != None:
                 right_hand_up_measure = -(right_hand_point[Y] - right_shoulder_point[Y])  # inverted because is inverted y
-                if right_hand_up_measure > 0:
+                if right_hand_up_measure > hand_recognition_threshold:
                     #print("RIGHT UP")
                     right_hand_UP = True
 
             hand_ok = (left_hand_UP and not right_hand_UP) or (not left_hand_UP and right_hand_UP)  # XOR
 
         # CHECK IF THE HAND IS NEAR THE FACE
+        ''' AVOIDED FOR NOW
         if hand_ok:
             if right_hand_point:
                 hand_point = right_hand_point
@@ -130,17 +134,18 @@ class Heuristic:
             if hand_ear_distance < MIN_CONSTANT_HAND * palm_length or hand_ear_distance > MAX_CONSTANT_HAND * palm_length:
                 #print("DISTANCE WRONG")
                 hand_ok = False
-
+        '''
 ########################################################################################################################
 ##########  BODY CHECK  ################################################################################################
 ########################################################################################################################
 
+        left_arm_ok, right_arm_ok = False, False
         # CHECK IF SHOULDER-ELBOW JOINT IS "VERTICAL"
         if left_elbow_point and left_shoulder_point:
             left_arm_orientation = self.get_vector_angle(left_elbow_point, left_shoulder_point)
             if left_elbow_point[Y] > left_shoulder_point[Y] and left_arm_orientation < ARM_ORIENTATION_MARGIN and left_arm_orientation > -ARM_ORIENTATION_MARGIN:
                 #print("BODY ORIENTATION ok  ( " + str(left_arm_orientation) + " )")
-                body_ok = True
+                left_arm_ok = True
             #else:
             #    print("BODY ORIENTATION bad ( " + str(left_arm_orientation) + " )")
 
@@ -148,8 +153,11 @@ class Heuristic:
             right_arm_orientation = self.get_vector_angle(right_elbow_point, right_shoulder_point)
             if right_elbow_point[Y] > right_shoulder_point[Y] and right_arm_orientation < ARM_ORIENTATION_MARGIN and right_arm_orientation > -ARM_ORIENTATION_MARGIN:
                 #print("BODY ORIENTATION ok  ( " + str(left_arm_orientation) + " )")
-                body_ok = True
+                right_arm_ok = True
             #else:
             #    print("BODY ORIENTATION bad ( " + str(left_arm_orientation) + " )")
+
+
+        body_ok = (left_arm_ok and right_arm_ok)
 
         return body_ok, hand_ok
