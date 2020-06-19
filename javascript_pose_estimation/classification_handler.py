@@ -3,6 +3,8 @@ import requests
 import json
 from input_processer import processInput, normalizeHandData, frameSampler
 
+BODY_CONFIDENCE_THRESHOLD = 0.9
+HAND_CONFIDENCE_THRESHOLD = 0.9
 
 INTEREST_PARTS = {"leftShoulder": 0, "leftElbow": 2, "leftWrist": 4, "rightShoulder": 6, "rightElbow":8, "rightWrist": 10}
 
@@ -41,7 +43,7 @@ class BodyClassificationHandler:
         """
         Reset classification input array for new input to be sent
         """
-        print("Starting Body Gesture Capture ...")
+        #print("Starting Body Gesture Capture ...")
         self.classification_input_array = np.zeros((70, 12))
 
 
@@ -61,10 +63,12 @@ class BodyClassificationHandler:
         max_prediction_index = predictions.index(max_prediction_value)
 
         BODY_GESTURES = ["NEXT SLIDE", "PREVIOUS SLIDE", "START/STOP"]
-
-        print("Body Gesture Prediction: " +
-              BODY_GESTURES[max_prediction_index] +
-              " [ " + str(max_prediction_value) + " ]")
+        if max_prediction_value >= BODY_CONFIDENCE_THRESHOLD:
+            print("Body Gesture Prediction: " +
+                  BODY_GESTURES[max_prediction_index] +
+                  " [ " + str(max_prediction_value) + " ]")
+        else:
+            print(". . .")
         #print("Body Gesture Predictions: ", predictions)
 
 
@@ -173,7 +177,7 @@ class HandClassificationHandler:
         """
         Reset classification input array for new input to be sent
         """
-        print("Starting Hand Gesture Capture ...")
+        #print("Starting Hand Gesture Capture ...")
         self.classification_input_array = np.zeros((self.frames_per_call, 42))
 
 
@@ -193,10 +197,12 @@ class HandClassificationHandler:
         max_prediction_value = max(predictions)
         max_prediction_index = predictions.index(max_prediction_value)
         HAND_GESTURES = ["ZOOM IN", "ZOOM OUT"]
-
-        print("Hand Gesture Prediction: " +
-              HAND_GESTURES[max_prediction_index] +
-              " [ " + str(max_prediction_value) + " ]")
+        if max_prediction_value >= HAND_CONFIDENCE_THRESHOLD:
+            print("Hand Gesture Prediction: " +
+                  HAND_GESTURES[max_prediction_index] +
+                  " [ " + str(max_prediction_value) + " ]")
+        else:
+            print(". . .")
         #print("Hand Gesture Predictions:", predictions)
 
 
