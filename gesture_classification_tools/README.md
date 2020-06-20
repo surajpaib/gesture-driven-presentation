@@ -1,28 +1,47 @@
 ## Content
 
 /1
-LSTM_model.h5
+LSTM_truncate70_200units_next_prev_start.h5
 export_to_protobuf.py
 gesture_classification_tools.py
+install_tf_serving.sh
+preprocessing_tools.py
+README.md
+run_model_server.sh
 test_client.py
+xml_processing_tools.py
 
-#####/1: 
-Contains the tensorfow model (saved_model.pb) of keras model LSTM_model.h5. The tensorflow model is needed for serving of keras model during production. This folder is created with export_to_protobuf.py script. "1" means the version number, It must be a number to be recognized as a version from tensorflow-model-server. If not tensorflow-model-server outputs an error.
+##### /1: 
+Contains the tensorfow model (saved_model.pb) of keras model LSTM_truncate70_200units_next_prev_start.h5. The tensorflow model is needed for serving of keras model during production. This folder is created with export_to_protobuf.py script. "1" means the version number, It must be a number to be recognized as a version from tensorflow-model-server. If not tensorflow-model-server outputs an error.
 
-#####LSTM_model.h5:
+##### LSTM_truncate70_200units_next_prev_start.h5:
 The trained keras model
 
-#####export_to_protobuf.py:
+##### export_to_protobuf.py:
 Script to export keras .h5 model to a protobuf .pb model. Creates /1 folder autoatically.
 
-#####gesture_classification_tools.py:
+##### gesture_classification_tools.py:
 Tools for the pose classification.
 
-#####test_client: 
+##### install_tf_serving.sh:
+Bash script to install tensorflow model server.
+
+##### preprocessing_tools.py:
+Tools for the preprocessing of the dataset.
+
+##### README.md:
+Readme file for the gesture_classification_tools folder.
+
+##### run_model_server.sh:
+Bash script to run body classification model server.
+
+##### test_client.py: 
 A client to test the tensorflow serving model.
 
-
-### How does the tensorflow serving model function?
+##### xml_processing_tools.py:
+Tools for reading of the dataset.
+<br><br>
+### How does the tensorflow serving model work?
 
 #####Literature:
 https://towardsdatascience.com/deploying-keras-models-using-tensorflow-serving-and-flask-508ba00f1037
@@ -39,10 +58,3 @@ tensorflow_model_server --model_base_path=<absolute_path_to_folder_which_contain
 
 To test the server run the test_client.py.
 
-
-#####5fps_model:
-Accuracy: 98.16% training and 96.90% testing. Data is padded to 35 frames, so Input_shape is (None, 35, 12).
-
-
-#####10fps_model:
-Accuracy: 98.96% training and 97.12% testing. Data is padded to 70 frames, so Input_shape is (None, 70, 12).
