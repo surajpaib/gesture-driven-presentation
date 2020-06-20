@@ -9,7 +9,6 @@ from keras.layers import Dropout, BatchNormalization
 from keras.layers import LSTM
 from keras.utils import to_categorical
 import matplotlib.pyplot as plt
-from debugging_tools import *
 from xml_processing_tools import xmlToNumpy
 from keras.callbacks import LambdaCallback
 from keras.models import load_model, Model
@@ -91,10 +90,8 @@ def evaluate_model(trainX, trainy, testX, testy, load_model=False,
     if load_model==True:
         model = loadKerasModel(filename)
     else:
-        # model = createKerasModel(n_timesteps, n_features, n_outputs)
         model = createLSTM_FCN(n_timesteps, n_features, n_outputs)
 
-    # print_weights = LambdaCallback(on_epoch_end=lambda epoch, logs: print(model.layers[0].get_weights()))
     print_epoch_nr = LambdaCallback(on_epoch_end=lambda epoch, logs: print(epoch))
 
     opt = keras.optimizers.Adam(learning_rate=0.0001,
@@ -105,23 +102,13 @@ def evaluate_model(trainX, trainy, testX, testy, load_model=False,
 
     model.compile(loss='categorical_crossentropy', optimizer=opt, metrics=['accuracy'])
 
-    # model.compile(loss='categorical_crossentropy',
-    #               optimizer=tf.optimizers.Adam(learning_rate=0.0001,
-    #                                            beta_1=0.9,
-    #                                            beta_2=0.999,
-    #                                            epsilon=1e-07,
-    #                                            amsgrad=False,
-    #                                            name='Adam'),
-    #               metrics=['accuracy'])
-
-    # fit network
+    # fit network:
     history = model.fit(trainX, trainy, epochs=epochs, batch_size=batch_size,
                                         verbose=verbose,
-                                        validation_data=(testX, testy))#, callbacks = [print_weights])
-    # model.fit(trainX, trainy, epochs=epochs, batch_size=batch_size, verbose=verbose, callbacks = epoch_ending(trainX, trainy))
+                                        validation_data=(testX, testy))
     print("loss: ", history.history['loss'])
     print("accuracy: ",history.history['accuracy'])
-    # evaluate model
+    # evaluate model:
     _, train_accuracy = model.evaluate(trainX, trainy, batch_size=batch_size,
                                                        verbose=0)
     _, test_accuracy = model.evaluate(testX, testy, batch_size=batch_size,
@@ -136,8 +123,6 @@ def evaluate_model(trainX, trainy, testX, testy, load_model=False,
 def main():
 
     X, Y = xmlToNumpy(preprocessing = True, process_type = 'truncate') # process_type = 'resample' or 'truncate'
-    debug(X)
-    pause()
 
     if len(X) == 0 or len(Y) == 0:
         return 0
@@ -151,7 +136,7 @@ def main():
     for r in range(repeats):
         train_test_scores = evaluate_model(X_train, y_train, X_test, y_test,
                                            load_model=False,
-                                           filename='LSTM_truncate70_200units_next_prev.h5',
+                                           filename='LSTM_model.h5',
                                            save_model=True)
         train_score = train_test_scores[0]
         test_score = train_test_scores[1]
@@ -164,6 +149,6 @@ def main():
         scores.append(test_score)
 
 
-
 ################### Main function #########################
+
 main()

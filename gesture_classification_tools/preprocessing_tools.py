@@ -1,7 +1,7 @@
 
 import numpy as np
 from keras.preprocessing.sequence import pad_sequences
-from debugging_tools import *
+
 
 def deleteNaN(array):
     """
@@ -43,37 +43,6 @@ def kerasTruncate(array, max_len=70):
     array = pad_sequences(array, maxlen=max_len, dtype='float32', padding='post', truncating='post')
     return array
 
-def frameSampler(array, target_frame):
-    """
-    Random sample frames from the array to given target frame number:
-    array: frame array with shape[1, frame_size, coordinates]
-    coordinates are 12 for body pose and 42 for hand pose.
-    target_frame: target frame number for the array.
-    sampled_array: Shape: [1, target_frame, coordinates]
-    """
-    frame_size = array.shape[1]
-    samples = np.linspace(0,frame_size, num=target_frame, endpoint=False)
-    samples = samples//1
-    samples = samples.astype(int)
-    # Get the frames, which are in samples array:
-    sampled_array = array[:,samples,:]
-
-    return sampled_array
-
-
-def frameSample(array, target_frame):
-    '''
-    Resample rames from the array to given target frames number
-    array: a list of sequence to truncate
-    '''
-    new_array = []
-    for i in range(len(array)):
-        print('shape of current array {} is: {}'.format(i, array[i].shape))
-        array_i = array[i].reshape(1, array[i].shape[0], array[i].shape[1])
-        array_i = frameSampler(array_i, target_frame=target_frame)
-        new_array.append(array_i)
-    result = np.asarray(new_array)
-    return np.squeeze(result)
 
 ################## Main code #################
 

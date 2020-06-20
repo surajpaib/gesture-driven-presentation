@@ -10,7 +10,6 @@ from keras.layers import Dropout, BatchNormalization
 from keras.layers import LSTM
 from keras.utils import to_categorical
 import matplotlib.pyplot as plt
-from debugging_tools import *
 from pkl_processing_tools import pklToNumpy
 from keras.callbacks import LambdaCallback
 from keras.models import load_model
@@ -69,7 +68,6 @@ def evaluate_model(trainX, trainy, testX, testy, load_model=False,
     else:
         model = createKerasModel(n_timesteps, n_features, n_outputs)
 
-    # print_weights = LambdaCallback(on_epoch_end=lambda epoch, logs: print(model.layers[0].get_weights()))
     print_epoch_nr = LambdaCallback(on_epoch_end=lambda epoch, logs: print(epoch))
 
     opt = keras.optimizers.Adam(learning_rate=0.0001,
@@ -80,14 +78,14 @@ def evaluate_model(trainX, trainy, testX, testy, load_model=False,
 
     model.compile(loss='categorical_crossentropy', optimizer=opt, metrics=['accuracy'])
 
-    # fit network
+    # fit network:
     history = model.fit(trainX, trainy, epochs=epochs, batch_size=batch_size,
                                         verbose=verbose,
-                                        validation_data=(testX, testy))#, callbacks = [print_weights])
-    # model.fit(trainX, trainy, epochs=epochs, batch_size=batch_size, verbose=verbose, callbacks = epoch_ending(trainX, trainy))
+                                        validation_data=(testX, testy))
+
     print("loss: ", history.history['loss'])
     print("accuracy: ",history.history['accuracy'])
-    # evaluate model
+    # evaluate model:
     _, train_accuracy = model.evaluate(trainX, trainy, batch_size=batch_size,
                                                        verbose=0)
     _, test_accuracy = model.evaluate(testX, testy, batch_size=batch_size,

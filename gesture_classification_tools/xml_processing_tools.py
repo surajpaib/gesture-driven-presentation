@@ -1,7 +1,6 @@
 import xmltodict
 import numpy as np
 import os
-from debugging_tools import *
 from preprocessing_tools import *
 from pathlib import Path
 
@@ -40,6 +39,7 @@ def load_data_file(dic_filename):
     with open(dic_filename) as fd:
         print(dic_filename)
         doc = xmltodict.parse(fd.read())
+
     #############DataX##############
     dataX = []
     FPS= doc['data']['FPS']
@@ -68,26 +68,13 @@ def load_data_file(dic_filename):
     #############DataY##############
     dataY = []
     if 'lprev' in dic_filename:
-        dataY = [1, 0, 0, 0]
-        # dataY = [1, 0, 0]
-        # dataY = [1,0]
-    # elif 'reset' in dic_filename:
-    #     dataY = [0, 1, 0, 0]
+        dataY = [1, 0, 0]
+
     elif 'rnext' in dic_filename:
-        dataY = [0, 0, 1, 0]
-        # dataY = [0, 1, 0]
-        # dataY = [0, 1]
+        dataY = [0, 1, 0]
+
     elif 'startstop' in dic_filename:
-        dataY = [0, 0, 1, 0]
-    elif 'reset' in dic_filename:
-
-        dataY = [0, 0, 0, 1]
-        # dataY = [0, 0, 1]
-
-    # else:
-        # dataY = [0, 0, 0, 0]
-        # dataY = [0, 0, 0]
-
+        dataY = [0, 0, 1]
 
     return dataX, dataY, FPS, file_length
 
@@ -135,8 +122,6 @@ def pickleChecker():
     If not returns IOError.
     """
     PICKLE_FOLDER = "../../pickles/"
-    #file_name_x = 'X.npy'
-    #file_name_y = 'Y.npy'
 
     PICKLE_PATH_X = Path(PICKLE_FOLDER + 'X.npy')
     PICKLE_PATH_Y = Path(PICKLE_FOLDER + 'Y.npy')
@@ -177,10 +162,7 @@ def xmlToNumpy(preprocessing = True, process_type = 'resample'):
     process_type = 'resample' or 'truncate'
     """
 
-    folders = ['LPrev', 'Reset', 'RNext', 'StartStop']
-    # folders = ['LPrev', 'RNext', 'Reset']
-    # folders = ['LPrev', 'RNext']
-
+    folders = ['LPrev', 'RNext', 'StartStop']
 
     loaded_pickle = pickleChecker()
 
