@@ -1,6 +1,6 @@
 tensorflow==2.1.0
 pandas==0.25.0
-requests==2.18.4
+requests==2.20.0
 opencv_python==4.2.0.32
 matplotlib==3.2.1
 numpy==1.17.0
