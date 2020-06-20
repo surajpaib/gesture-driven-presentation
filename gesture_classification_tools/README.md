@@ -45,6 +45,31 @@ Tools for reading of the dataset.
 ### Folder structure:
 For reading the datasets and creating the models the folder structure must be as following:
 
+```
+<folder_name>
+└─── gesture-driven-presentation/
+│    └─── dataset_manipulation/
+│    └─── gesture_classification_tools/
+│    └─── hand_gesture_classification_tools/
+│    └─── ...
+│
+└─── pickles/
+│    └─── X.npy
+│    └─── x_hand.npy
+│    └─── Y.npy
+│    └─── y_hand.npy
+│
+└─── preprocessed_video_data/
+     └─── pkl_files/
+     |    └─── closed_palm/
+     |    └─── open_palm/
+     └─── xml_files/
+          └─── LPrev/
+          └─── ...
+
+```
+
+
 .
 +-- gesture-driven-presentation/
 |   +-- dataset_manipulation
