@@ -66,27 +66,7 @@ For reading the datasets and creating the models the folder structure must be as
      └─── xml_files/
           └─── LPrev/
           └─── ...
-
 ```
-
-
-.
-+-- gesture-driven-presentation/
-|   +-- dataset_manipulation
-|   +-- gesture_classification_tools
-|   +-- hand_gesture_classification_tools
-|   +-- ...
-+-- pickles/
-|   +-- X.npy
-|   +-- x_hand.npy
-|   +-- ...
-+-- preprocessed_video_data
-|   +-- pkl_files
-|    |   +-- closed_palm
-|    |   +-- open_palm
-|   +-- xml_files
-|    |   +-- LPrev
-|    |   +-- ...
 
 <br><br>
 ### How does the tensorflow serving model work?
