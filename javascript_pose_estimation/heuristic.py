@@ -2,12 +2,13 @@ import math
 
 
 X, Y = 0, 1
-HAND_ORIENTATION_MARGIN = 45
+HAND_ORIENTATION_MARGIN = 40
 MIN_CONSTANT_HAND = 1
 MAX_CONSTANT_HAND = 2.5
-
 HAND_THRESHOLD = 1.5
+
 ARM_ORIENTATION_MARGIN = 45
+FOREARM_ORIENTATION_DOWN_MARGIN = 30
 
 class Heuristic:
 
@@ -50,6 +51,10 @@ class Heuristic:
         C = (B[X] - A[X], B[Y] - A[Y])
         return math.degrees(math.atan(C[X] / C[Y]))
 
+    def get_vector_angle2(self, A, B):
+        C = (B[X] - A[X], B[Y] - A[Y])
+        return math.degrees(math.atan2(C[Y], C[X]))
+
 
     def calculate_distance(self, A, B):
         return math.sqrt((B[X] - A[X]) ** 2 + (B[Y] - A[Y]) ** 2)
@@ -65,6 +70,8 @@ class Heuristic:
         right_shoulder_point = self.get_body_keypoint("rightShoulder")
         left_elbow_point = self.get_body_keypoint("leftElbow")
         right_elbow_point = self.get_body_keypoint("rightElbow")
+        left_wrist_point = self.get_body_keypoint("leftWrist")
+        right_wrist_point = self.get_body_keypoint("rightWrist")
 
         #HAND:thumb, indexFinger, middleFinger, ringFinger, pinky, palmBase
         palm_base_point = self.get_hand_keypoint('palmBase')
@@ -79,8 +86,8 @@ class Heuristic:
 
 
         # CHECK IF HAND IS IN CORRECT POSITION
-        hand_orientation = self.get_vector_angle(palm_base_point, middle_finger_point)
-        if palm_base_point[Y] > middle_finger_point[Y] and hand_orientation < HAND_ORIENTATION_MARGIN and hand_orientation > -HAND_ORIENTATION_MARGIN:
+        hand_orientation = self.get_vector_angle2(middle_finger_point, palm_base_point)
+        if (90-HAND_ORIENTATION_MARGIN < hand_orientation < 90+HAND_ORIENTATION_MARGIN): #palm_base_point[Y] > middle_finger_point[Y] and
             #print("HAND ORIENTATION ok")
             hand_ok = True
         #else:
@@ -142,22 +149,41 @@ class Heuristic:
         left_arm_ok, right_arm_ok = False, False
         # CHECK IF SHOULDER-ELBOW JOINT IS "VERTICAL"
         if left_elbow_point and left_shoulder_point:
-            left_arm_orientation = self.get_vector_angle(left_elbow_point, left_shoulder_point)
-            if left_elbow_point[Y] > left_shoulder_point[Y] and left_arm_orientation < ARM_ORIENTATION_MARGIN and left_arm_orientation > -ARM_ORIENTATION_MARGIN:
+            left_arm_orientation = self.get_vector_angle2(left_elbow_point, left_shoulder_point)
+            if (-90-ARM_ORIENTATION_MARGIN < left_arm_orientation < -90+ARM_ORIENTATION_MARGIN): #left_elbow_point[Y] > left_shoulder_point[Y] and
                 #print("BODY ORIENTATION ok  ( " + str(left_arm_orientation) + " )")
                 left_arm_ok = True
             #else:
-            #    print("BODY ORIENTATION bad ( " + str(left_arm_orientation) + " )")
+            #   print("BODY ORIENTATION bad ( " + str(left_arm_orientation) + " )")
 
         if right_elbow_point and right_shoulder_point:
-            right_arm_orientation = self.get_vector_angle(right_elbow_point, right_shoulder_point)
-            if right_elbow_point[Y] > right_shoulder_point[Y] and right_arm_orientation < ARM_ORIENTATION_MARGIN and right_arm_orientation > -ARM_ORIENTATION_MARGIN:
+            right_arm_orientation = self.get_vector_angle2(right_elbow_point, right_shoulder_point)
+            if (-90-ARM_ORIENTATION_MARGIN < right_arm_orientation < -90+ARM_ORIENTATION_MARGIN):
                 #print("BODY ORIENTATION ok  ( " + str(left_arm_orientation) + " )")
                 right_arm_ok = True
             #else:
             #    print("BODY ORIENTATION bad ( " + str(left_arm_orientation) + " )")
 
+        left_forearm_ok, right_forearm_ok = False, False
+        # CHECK IF ELBOW-WRIST JOINT IS "HORIZONTAL"
+        if left_wrist_point and left_elbow_point:
+            left_forearm_orientation = self.get_vector_angle2(left_wrist_point, left_elbow_point)
+            if (-FOREARM_ORIENTATION_DOWN_MARGIN < left_forearm_orientation):
+            #    print("BODY ORIENTATION ok  ( " + str(left_forearm_orientation) + " )")
+                left_forearm_ok = True
+            #else:
+            #    print("BODY ORIENTATION bad ( " + str(left_forearm_orientation) + " )")
 
-        body_ok = (left_arm_ok and right_arm_ok)
+        if right_wrist_point and right_elbow_point:
+            right_forearm_orientation = self.get_vector_angle2(right_wrist_point, right_elbow_point)
+            if (right_forearm_orientation > 0 or right_forearm_orientation < -180+FOREARM_ORIENTATION_DOWN_MARGIN):
+                #print("BODY ORIENTATION ok  ( " + str(right_forearm_orientation) + " )")
+                right_forearm_ok = True
+            #else:
+            #    print("BODY ORIENTATION bad ( " + str(right_forearm_orientation) + " )")
 
+
+
+        body_ok = (left_arm_ok and right_arm_ok) and (left_forearm_ok or right_forearm_ok)
+        #return False, False
         return body_ok, hand_ok
