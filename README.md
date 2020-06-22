@@ -12,7 +12,7 @@ Replace bash with any shell
 ```
 tensorflow_model_server --model_base_path=$PWD/gesture_classification_tools --rest_api_port=9000 --model_name=saved_model &
 
-cd javascript_pose_estimation
+cd gesture-presentation
 python detector_api.py
 
 ```
@@ -21,7 +21,7 @@ python detector_api.py
 
 Use this only to modify javascript code. Install node and yarn first.
 
-The js files in [javascript_pose_estimation](javascript_pose_estimation) contain the pose estimation code. Once changes are made run,
+The js files in [gesture-presentation](gesture-presentation) contain the pose estimation code. Once changes are made run,
 ```
 python prep_dist.py
 ```

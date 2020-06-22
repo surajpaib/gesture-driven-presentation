@@ -2,6 +2,7 @@ import numpy as np
 import requests
 import json
 from input_processer import processInput, normalizeHandData, frameSampler
+import tensorflow as tf
 
 BODY_CONFIDENCE_THRESHOLD = 0.95
 HAND_CONFIDENCE_THRESHOLD = 0.95
@@ -12,7 +13,7 @@ class BodyClassificationHandler:
     """
     Class to handle body pose coordinates and output classification
     """
-    def __init__(self, frames_per_call=30, minPoseConfidence=0.1, invert=False, flip=True):
+    def __init__(self, frames_per_call=30, minPoseConfidence=0.1, invert=False, flip=True, model_path=None):
         """
         frames_per_call : Set to number of frames to be collected in the array before sending to server
         minPoseConfidence: Minimum confidence of the pose to be considered
@@ -24,7 +25,8 @@ class BodyClassificationHandler:
         self.flip = flip
         # Intialize dummy classication input array to be sent to model server
         self.classification_input_array = np.zeros((70, 12))
-
+        if model_path is not None:
+            self.model = tf.keras.models.load_model(model_path)
 
     def checkforSendFrame(self):
         """
@@ -70,6 +72,11 @@ class BodyClassificationHandler:
         else:
             print(". . .")
         #print("Body Gesture Predictions: ", predictions)
+
+    def predictfromModel(self, array):
+        out = self.model.predict(array)
+
+        print("Predicted: ", out)
 
 
     def update(self, body_pose_dict, xmax=640, ymax=500):
@@ -146,7 +153,7 @@ class HandClassificationHandler:
     """
     Class to handle body pose coordinates and output classification
     """
-    def __init__(self, frames_per_call=10, minPoseConfidence=0.1, invert=False, flip=True):
+    def __init__(self, frames_per_call=10, minPoseConfidence=0.1, invert=False, flip=True, model_path=None):
         """
         frames_per_call : Set to number of frames to be collected in the array before sending to server
         minPoseConfidence: Minimum confidence of the pose to be considered
@@ -158,6 +165,10 @@ class HandClassificationHandler:
         self.flip = flip
         # Intialize dummy classication input array to be sent to model server
         self.classification_input_array = np.zeros((self.frames_per_call, 42))
+
+        if model_path is not None:
+            self.model = tf.keras.models.load_model(model_path)
+
 
 
     def checkforSendFrame(self):
@@ -205,6 +216,11 @@ class HandClassificationHandler:
             print(". . .")
         #print("Hand Gesture Predictions:", predictions)
 
+
+    def predictfromModel(self, array):
+        out = self.model.predict(array)
+
+        print("Predicted: ", out)
 
 
     def update(self, body_pose_dict, xmax=640, ymax=500):
