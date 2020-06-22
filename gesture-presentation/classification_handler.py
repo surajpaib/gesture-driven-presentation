@@ -3,6 +3,7 @@ import requests
 import json
 from input_processer import processInput, normalizeHandData, frameSampler
 import tensorflow as tf
+import time
 
 BODY_CONFIDENCE_THRESHOLD = 0.95
 HAND_CONFIDENCE_THRESHOLD = 0.95
@@ -208,12 +209,14 @@ class HandClassificationHandler:
         max_prediction_value = max(predictions)
         max_prediction_index = predictions.index(max_prediction_value)
         HAND_GESTURES = ["ZOOM OUT", "ZOOM IN"]
+
         if max_prediction_value >= HAND_CONFIDENCE_THRESHOLD:
             print("Hand Gesture Prediction: " +
                   HAND_GESTURES[max_prediction_index] +
                   " [ " + str(max_prediction_value) + " ]")
         else:
             print(". . .")
+        time.sleep(1)
         #print("Hand Gesture Predictions:", predictions)
 
 
