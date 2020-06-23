@@ -41,7 +41,7 @@ def processInput(array):
     """
     normalized = np.zeros([70,12])
     # for i in range(array.shape[0]):
-    for i in range(15):
+    for i in range(18):
 
         one_row = normalizeKeypoints(array[i])
         normalized[i] = one_row
