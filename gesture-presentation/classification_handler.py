@@ -3,7 +3,6 @@ import requests
 import json
 from input_processer import processInput, normalizeHandData, frameSampler
 import tensorflow as tf
-
 BODY_CONFIDENCE_THRESHOLD = 0.95
 HAND_CONFIDENCE_THRESHOLD = 0.95
 
@@ -27,6 +26,8 @@ class BodyClassificationHandler:
         self.classification_input_array = np.zeros((70, 12))
         if model_path is not None:
             self.model = tf.keras.models.load_model(model_path)
+        else:
+            self.model = None
 
     def checkforSendFrame(self):
         """
@@ -74,10 +75,20 @@ class BodyClassificationHandler:
         #print("Body Gesture Predictions: ", predictions)
 
     def predictfromModel(self, array):
-        out = self.model.predict(array)
+        predictions = self.model.predict(array)
 
-        print("Predicted: ", out)
+        max_prediction_value = predictions.max()
+        max_prediction_index = predictions.argmax()
 
+        BODY_GESTURES = ["NEXT", "PREV", "SS"]
+        if max_prediction_value >= BODY_CONFIDENCE_THRESHOLD:
+            print("Body Gesture Prediction: " +
+                  BODY_GESTURES[max_prediction_index] +
+                  " [ " + str(max_prediction_value) + " ]")
+
+            return BODY_GESTURES[max_prediction_index]
+        else:
+            print(". . .")
 
     def update(self, body_pose_dict, xmax=640, ymax=500):
         """
@@ -113,9 +124,13 @@ class BodyClassificationHandler:
 
                 normalized_input_array = processInput(self.classification_input_array)
                 input_array = np.expand_dims(normalized_input_array, axis=0)
-                self.sendFrametoServer(input_array)
-
+                # if self.model is None:
+                #     self.sendFrametoServer(input_array)
+                # else:
+                return self.predictfromModel(input_array)
             self.clearHistory()
+
+        return None
 
 ### HAND CLASSIFICATION HANDLER
 
@@ -168,6 +183,8 @@ class HandClassificationHandler:
 
         if model_path is not None:
             self.model = tf.keras.models.load_model(model_path)
+        else:
+            self.model = None
 
 
 
@@ -207,6 +224,22 @@ class HandClassificationHandler:
 
         max_prediction_value = max(predictions)
         max_prediction_index = predictions.index(max_prediction_value)
+        HAND_GESTURES = ["IN", "OUT"]
+        if max_prediction_value >= HAND_CONFIDENCE_THRESHOLD:
+            print("Hand Gesture Prediction: " +
+                  HAND_GESTURES[max_prediction_index] +
+                  " [ " + str(max_prediction_value) + " ]")
+            return HAND_GESTURES[max_prediction_index]
+        else:
+            print(". . .")
+        #print("Hand Gesture Predictions:", predictions)
+
+
+    def predictfromModel(self, array):
+        predictions = self.model.predict(array)
+
+        max_prediction_value = predictions.max()
+        max_prediction_index = predictions.argmax()
         HAND_GESTURES = ["ZOOM IN", "ZOOM OUT"]
         if max_prediction_value >= HAND_CONFIDENCE_THRESHOLD:
             print("Hand Gesture Prediction: " +
@@ -214,14 +247,6 @@ class HandClassificationHandler:
                   " [ " + str(max_prediction_value) + " ]")
         else:
             print(". . .")
-        #print("Hand Gesture Predictions:", predictions)
-
-
-    def predictfromModel(self, array):
-        out = self.model.predict(array)
-
-        print("Predicted: ", out)
-
 
     def update(self, body_pose_dict, xmax=640, ymax=500):
         """
@@ -265,6 +290,10 @@ class HandClassificationHandler:
             input_array = normalizeHandData(input_array)
             input_array = frameSampler(input_array, 40)
 
-            self.sendFrametoServer(input_array)
-
+            # if self.model is None:
+            #     self.sendFrametoServer(input_array)
+            # else:
+            return self.predictfromModel(input_array)
             self.clearHistory()
+
+        return None

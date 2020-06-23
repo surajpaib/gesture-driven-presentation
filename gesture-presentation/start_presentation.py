@@ -5,6 +5,7 @@ import webbrowser
 import os
 
 
+import sys
 import json
 from time import sleep
 import time
@@ -14,7 +15,11 @@ import cv2
 from classification_handler import BodyClassificationHandler, HandClassificationHandler
 import heuristic
 
+import time
+import win32com.client
+import pyautogui
 
+from powerpoint import PowerpointWrapper, PresentationWrapper
 
 class MainHandler(tornado.web.RequestHandler):
     def get(self):
@@ -22,15 +27,23 @@ class MainHandler(tornado.web.RequestHandler):
 
 
 class SimpleWebSocket(tornado.websocket.WebSocketHandler):
+    def initialize(self, ppt_path):
+        self.ppt_path = ppt_path
+
     def open(self):
+        
+        # Initialize ppt
+        wrapper = PowerpointWrapper()
+        self.presentation =  wrapper.open_presentation(self.ppt_path)
+
         # Initialize Body Classification handler class
-
-
         # Add flip and invert flags here!
         self.enable_heuristic = True
         self.body_classification_handler = BodyClassificationHandler(flip=True, invert=False, model_path="../gesture_classification_tools/LSTM_truncate70_200units_next_prev_start.h5")
         self.hand_classification_handler = HandClassificationHandler(flip=True, invert=False, model_path="../hand_gesture_classification_tools/LSTM_hand_model.h5")
         print("WebSocket opened")
+        print("Starting Slideshow ...")
+        self.presentation.run_slideshow()
 
     def check_origin(self, origin):
         return True
@@ -42,6 +55,8 @@ class SimpleWebSocket(tornado.websocket.WebSocketHandler):
         Message can be parsed using a json loads
         """
         response_dict = json.loads(message)
+        body_gesture = None
+        hand_gesture = None
 
         if self.enable_heuristic:
             waiting = True
@@ -50,12 +65,12 @@ class SimpleWebSocket(tornado.websocket.WebSocketHandler):
                 heux = heuristic.Heuristic(response_dict, self.body_classification_handler.minPoseConfidence, self.hand_classification_handler.minPoseConfidence)
                 check_body_validation, check_hand_validation = heux.heuristic_checks()
                 if check_body_validation:
-                    self.body_classification_handler.update(response_dict["body_pose"][0], xmax=response_dict["image_width"], ymax=response_dict["image_height"])
+                    body_gesture = self.body_classification_handler.update(response_dict["body_pose"][0], xmax=response_dict["image_width"], ymax=response_dict["image_height"])
                     waiting = False
                 #else:
                 #    print("skipped position classification")
                 if check_hand_validation:
-                    self.hand_classification_handler.update(response_dict["handpose"], xmax=response_dict["image_width"], ymax=response_dict["image_height"])
+                    hand_gesture = self.hand_classification_handler.update(response_dict["handpose"], xmax=response_dict["image_width"], ymax=response_dict["image_height"])
                     waiting = False
                 #else:
                 #    print("skipped hand classification")
@@ -63,27 +78,32 @@ class SimpleWebSocket(tornado.websocket.WebSocketHandler):
                 print(". . .")
         else:
             if response_dict["body_pose"] and response_dict["handpose"]:
-                self.body_classification_handler.update(response_dict["body_pose"][0], xmax=response_dict["image_width"], ymax=response_dict["image_height"])
-                self.hand_classification_handler.update(response_dict["handpose"], xmax=response_dict["image_width"], ymax=response_dict["image_height"])
+                body_gesture = self.body_classification_handler.update(response_dict["body_pose"][0], xmax=response_dict["image_width"], ymax=response_dict["image_height"])
+                hand_gesture = self.hand_classification_handler.update(response_dict["handpose"], xmax=response_dict["image_width"], ymax=response_dict["image_height"])
 
+        if body_gesture == "NEXT":
+            self.presentation.next_slide()
+
+        if body_gesture == "PREV":
+            self.presentation.previous_slide()
 
     def on_close(self):
         print("WebSocket closed")
 
 
-def get_tornado_app():
+def get_tornado_app(ppt_path):
     return tornado.web.Application([
         (r"/", MainHandler),
         (r'/dist/(.*)', tornado.web.StaticFileHandler, {'path': 'dist'}),        
-        (r"/pose", SimpleWebSocket)
+        (r"/pose", SimpleWebSocket, {'ppt_path': ppt_path})
     ])
 
 
 
 class WebSocketServer:
-    def __init__(self, port):
+    def __init__(self, port, ppt_path):
         self.port = 7777
-        self.app = get_tornado_app()
+        self.app = get_tornado_app(ppt_path)
         self.app.listen(self.port)
 
     def start(self):
@@ -97,7 +117,11 @@ class WebSocketServer:
 
 
 if __name__ == "__main__":
-    ws_interface = WebSocketServer(port=7777)
+
+
+    ppt_path = sys.argv[1]
+
+    ws_interface = WebSocketServer(port=7777, ppt_path=ppt_path)
 
     try:
         ws_interface.start()
