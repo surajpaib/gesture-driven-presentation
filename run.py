@@ -25,4 +25,5 @@ if running_os == "Linux":
     os.system("tensorflow_model_server --model_base_path={} --rest_api_port={} --model_name=saved_model &".format(BODY_CLASSIFICATION_MODEL, BODY_MODEL_PORT))
     os.system("tensorflow_model_server --model_base_path={} --rest_api_port={} --model_name=saved_model &".format(HAND_CLASSIFICATION_MODEL, HAND_MODEL_PORT))
 
-    os.system("python3 javascript_pose_estimation/detector_api.py")
+    os.chdir("gesture-presentation/")
+    os.system("python3 detector_api.py")

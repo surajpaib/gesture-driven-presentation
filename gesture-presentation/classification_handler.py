@@ -3,7 +3,9 @@ import requests
 import json
 from input_processer import processInput, normalizeHandData, frameSampler
 import tensorflow as tf
-BODY_CONFIDENCE_THRESHOLD = 0.95
+import time
+
+BODY_CONFIDENCE_THRESHOLD = 0.98
 HAND_CONFIDENCE_THRESHOLD = 0.95
 
 INTEREST_PARTS = {"leftShoulder": 0, "leftElbow": 2, "leftWrist": 4, "rightShoulder": 6, "rightElbow":8, "rightWrist": 10}
@@ -12,7 +14,7 @@ class BodyClassificationHandler:
     """
     Class to handle body pose coordinates and output classification
     """
-    def __init__(self, frames_per_call=30, minPoseConfidence=0.1, invert=False, flip=True, model_path=None):
+    def __init__(self, frames_per_call=20, minPoseConfidence=0.1, invert=False, flip=True, model_path=None):
         """
         frames_per_call : Set to number of frames to be collected in the array before sending to server
         minPoseConfidence: Minimum confidence of the pose to be considered
@@ -232,6 +234,7 @@ class HandClassificationHandler:
             return HAND_GESTURES[max_prediction_index]
         else:
             print(". . .")
+        time.sleep(1)
         #print("Hand Gesture Predictions:", predictions)
 
 
