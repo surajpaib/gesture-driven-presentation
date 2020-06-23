@@ -5,7 +5,7 @@ from input_processer import processInput, normalizeHandData, frameSampler
 import tensorflow as tf
 import time
 
-BODY_CONFIDENCE_THRESHOLD = 0.95
+BODY_CONFIDENCE_THRESHOLD = 0.99
 HAND_CONFIDENCE_THRESHOLD = 0.95
 
 INTEREST_PARTS = {"leftShoulder": 0, "leftElbow": 2, "leftWrist": 4, "rightShoulder": 6, "rightElbow":8, "rightWrist": 10}
