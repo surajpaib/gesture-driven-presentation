@@ -42,8 +42,8 @@ class SimpleWebSocket(tornado.websocket.WebSocketHandler):
         self.body_classification_handler = BodyClassificationHandler(flip=True, invert=False, model_path="../gesture_classification_tools/LSTM_truncate70_200units_next_prev_start.h5")
         self.hand_classification_handler = HandClassificationHandler(flip=True, invert=False, model_path="../hand_gesture_classification_tools/LSTM_hand_model.h5")
         print("WebSocket opened")
-        print("Starting Slideshow ...")
-        self.presentation.run_slideshow()
+        self.presentation_started = False
+        self.presentation_running = True
 
     def check_origin(self, origin):
         return True
@@ -54,6 +54,12 @@ class SimpleWebSocket(tornado.websocket.WebSocketHandler):
         This function is called everytime a message is received from the socket connection. 
         Message can be parsed using a json loads
         """
+
+        if not self.presentation_started:
+            print("Starting Slideshow ...")
+            self.presentation.run_slideshow()
+            self.presentation_started = True
+
         response_dict = json.loads(message)
         body_gesture = None
         hand_gesture = None
@@ -82,10 +88,15 @@ class SimpleWebSocket(tornado.websocket.WebSocketHandler):
                 hand_gesture = self.hand_classification_handler.update(response_dict["handpose"], xmax=response_dict["image_width"], ymax=response_dict["image_height"])
 
         if body_gesture == "NEXT":
-            self.presentation.next_slide()
+            if self.presentation_running:
+                self.presentation.next_slide()
+
+        if body_gesture == "SS":
+            self.presentation_running = not self.presentation_running
 
         if body_gesture == "PREV":
-            self.presentation.previous_slide()
+            if self.presentation_running:
+                self.presentation.previous_slide()
 
     def on_close(self):
         print("WebSocket closed")

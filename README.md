@@ -1,17 +1,46 @@
 ## Gesture Driven Presentation
 
-### 1. Installation
+There are two modes of running the provided software:
+1. Windows Only Powerpoint Control
+2. Linux Only Gesture Detection
+
+
+## 1. Windows Only Powerpoint Control
+
+### Installation
+
+First make sure your windows system has the PowerPoint application and Python3.6 ( this specific version is needed due to compatibility issues. Download link: https://www.python.org/downloads/release/python-360/)
+
+Next, to install all the dependencies run the following,
+```
+pip install -r ppt_requirements.txt
+```
+
+
+### Running the ppt control
+
+Run the following in Powershell,
+
+```
+cd gesture-presentation
+python start_presentation.py <FULL_PATH_TO_PPTX_FILE>
+
+```
+
+This should initiate the software. Please wait till the initialization is complete.
+
+
+
+## 2. Linux Only Gesture Detection
+
 To install the model server dependencies (Linux only!)
 ```
-bash setup.sh
 pip install -r requirements.txt
 ```
 
-Replace bash with any shell 
-### 2. Run the pose estimation and communication interface
-```
-tensorflow_model_server --model_base_path=$PWD/gesture_classification_tools --rest_api_port=9000 --model_name=saved_model &
 
+### Run the pose estimation and communication interface
+```
 cd gesture-presentation
 python detector_api.py
 
