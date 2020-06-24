@@ -231,7 +231,6 @@ class HandClassificationHandler:
             print("Hand Gesture Prediction: " +
                   HAND_GESTURES[max_prediction_index] +
                   " [ " + str(max_prediction_value) + " ]")
-            return HAND_GESTURES[max_prediction_index]
         else:
             print(". . .")
         time.sleep(1)
@@ -243,11 +242,13 @@ class HandClassificationHandler:
 
         max_prediction_value = predictions.max()
         max_prediction_index = predictions.argmax()
-        HAND_GESTURES = ["ZOOM IN", "ZOOM OUT"]
+        HAND_GESTURES = ["IN", "OUT"]
         if max_prediction_value >= HAND_CONFIDENCE_THRESHOLD:
             print("Hand Gesture Prediction: " +
                   HAND_GESTURES[max_prediction_index] +
                   " [ " + str(max_prediction_value) + " ]")
+            return HAND_GESTURES[max_prediction_index]
+
         else:
             print(". . .")
 

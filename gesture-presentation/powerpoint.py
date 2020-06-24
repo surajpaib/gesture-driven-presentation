@@ -30,10 +30,11 @@ class PresentationWrapper:
 
         # NOT WORKING? Problem with the WIN + '+' command?
         self.zoom = True
-        self.keyboard.press(Key.cmd)
-        self.keyboard.press('+')
-        self.keyboard.release('+')
-        self.keyboard.release(Key.cmd)
+        
+        with self.keyboard.pressed(Key.cmd):
+            self.keyboard.press('=')
+            self.keyboard.release('=')
+
 
     def stop_zoom(self):
         # Do nothing if zoom is not running.
@@ -42,10 +43,11 @@ class PresentationWrapper:
 
         # NOT WORKING? Problem with the WIN + '+' command?
         self.zoom = False
-        self.keyboard.press(Key.cmd)
-        self.keyboard.press('+')
-        self.keyboard.release('+')
-        self.keyboard.release(Key.cmd)
+        with self.keyboard.pressed(Key.cmd):
+            self.keyboard.press('-')
+            self.keyboard.release('-')
+            self.keyboard.press('-')
+            self.keyboard.release('-')
 
 class PowerpointWrapper:
     def __init__(self):

@@ -88,7 +88,7 @@ class SimpleWebSocket(tornado.websocket.WebSocketHandler):
                 hand_gesture = self.hand_classification_handler.update(response_dict["handpose"], xmax=response_dict["image_width"], ymax=response_dict["image_height"])
 
 
-        self.perform_gesture_action()
+        self.perform_gesture_action(body_gesture, hand_gesture)
 
     def on_close(self):
         print("WebSocket closed")
@@ -96,14 +96,27 @@ class SimpleWebSocket(tornado.websocket.WebSocketHandler):
     def perform_gesture_action(self, body_gesture, hand_gesture):
         if body_gesture == "NEXT":
             if self.presentation_running:
+                print("Moving to next slide")
                 self.presentation.next_slide()
 
         if body_gesture == "SS":
+            print("Toggle Gesture Enable")
             self.presentation_running = not self.presentation_running
 
         if body_gesture == "PREV":
             if self.presentation_running:
+                print("Moving to previous slide")
                 self.presentation.previous_slide()
+
+        if hand_gesture == "IN":
+            if self.presentation_running:
+                print("Activating Zoom")
+                self.presentation.start_zoom()
+
+        if hand_gesture == "OUT":
+            if self.presentation_running:
+                print("Deactivating Zoom")
+                self.presentation.stop_zoom()                
 
 
 def get_tornado_app(ppt_path):
