@@ -24,19 +24,28 @@ class PresentationWrapper:
         self.presentation.SlideShowWindow.View.Previous()
 
     def start_zoom(self):
-        # self.presentation.Window.View.Zoom = 200
+        # Do nothing if zoom is already running.
+        if self.zoom:
+            return
 
-        with self.keyboard.pressed(Key.ctrl):
-            self.keyboard.press('+')
-            self.keyboard.release('+')
+        # NOT WORKING? Problem with the WIN + '+' command?
+        self.zoom = True
+        self.keyboard.press(Key.cmd)
+        self.keyboard.press('+')
+        self.keyboard.release('+')
         self.keyboard.release(Key.cmd)
 
     def stop_zoom(self):
-        # self.presentation.Window.View.Zoom = 30
+        # Do nothing if zoom is not running.
+        if not self.zoom:
+            return
 
-        with self.keyboard.pressed(Key.ctrl):
-            self.keyboard.press('-')
-            self.keyboard.release('-')
+        # NOT WORKING? Problem with the WIN + '+' command?
+        self.zoom = False
+        self.keyboard.press(Key.cmd)
+        self.keyboard.press('+')
+        self.keyboard.release('+')
+        self.keyboard.release(Key.cmd)
 
 class PowerpointWrapper:
     def __init__(self):
