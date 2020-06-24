@@ -90,7 +90,12 @@ def evaluate_model(trainX, trainy, testX, testy, load_model=False,
     if load_model==True:
         model = loadKerasModel(filename)
     else:
-        model = createLSTM_FCN(n_timesteps, n_features, n_outputs)
+        # LSTM Model:
+        model = createKerasModel(n_timesteps, n_features, n_outputs)
+        # Alternative LSTM-FCN Model:
+        # model = createLSTM_FCN(n_timesteps, n_features, n_outputs)
+
+    tf.keras.utils.plot_model(model, to_file="model_1.png", show_shapes=True)
 
     print_epoch_nr = LambdaCallback(on_epoch_end=lambda epoch, logs: print(epoch))
 
