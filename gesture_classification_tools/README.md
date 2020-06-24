@@ -49,6 +49,7 @@ For reading the datasets and creating the models the folder structure must be as
 <folder_name>
 └─── gesture-driven-presentation/
 │    └─── dataset_manipulation/
+│    └─── gesture-presentation/
 │    └─── gesture_classification_tools/
 │    └─── hand_gesture_classification_tools/
 │    └─── ...
