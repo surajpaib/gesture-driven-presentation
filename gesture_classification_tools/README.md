@@ -5,6 +5,8 @@ LSTM_truncate70_200units_next_prev_start.h5
 export_to_protobuf.py
 gesture_classification_tools.py
 install_tf_serving.sh
+LSTM-FCN-model.png
+LSTM-model.png
 preprocessing_tools.py
 README.md
 run_model_server.sh
@@ -25,6 +27,12 @@ Tools for the pose classification.
 
 ##### install_tf_serving.sh:
 Bash script to install tensorflow model server.
+
+##### LSTM-FCN-model.png:
+Keras LSTM-FCN-model plot.
+
+##### LSTM-model.png:
+Keras LSTM-model plot.
 
 ##### preprocessing_tools.py:
 Tools for the preprocessing of the dataset.
